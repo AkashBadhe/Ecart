@@ -8,10 +8,10 @@ import GoogleProvider from 'next-auth/providers/google';
 export default NextAuth({
   // https://next-auth.js.org/configuration/providers
   providers: [
-    // FacebookProvider({
-    //   clientId: getEnv('FACEBOOK_CLIENT_ID'),
-    //   clientSecret: getEnv('FACEBOOK_CLIENT_SECRET'),
-    // }),
+    FacebookProvider({
+      clientId: getEnv('FACEBOOK_CLIENT_ID'),
+      clientSecret: getEnv('FACEBOOK_CLIENT_SECRET'),
+    }),
     GoogleProvider({
       clientId: getEnv('GOOGLE_CLIENT_ID'),
       clientSecret: getEnv('GOOGLE_CLIENT_SECRET'),

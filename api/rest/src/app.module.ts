@@ -33,13 +33,18 @@ import { UsersModule } from './users/users.module';
 import { WebHookModule } from './web-hook/web-hook.module';
 import { WishlistsModule } from './wishlists/wishlists.module';
 import { WithdrawsModule } from './withdraws/withdraws.module';
+import { MongooseModule } from '@nestjs/mongoose';
+import { CatsModule } from './cats/cats.module';
+
 @Module({
   imports: [
+    MongooseModule.forRoot('mongodb+srv://akashbadhe:XfZUVV767yl18frX@chatappcluster.htgwqj7.mongodb.net/ECart?retryWrites=true&w=majority'),
     ConfigModule.forRoot(),
     StripeModule.forRoot({
       apiKey: process.env.STRIPE_API_KEY,
       apiVersion: '2022-11-15',
     }),
+    CatsModule,
     UsersModule,
     CommonModule,
     ProductsModule,

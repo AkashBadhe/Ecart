@@ -15,6 +15,7 @@ import type { LoginUserInput } from '@/types';
 import { AnonymousIcon } from '@/components/icons/anonymous-icon';
 import { useRouter } from 'next/router';
 import { Routes } from '@/config/routes';
+import { FacebookIcon } from '../icons/facebook';
 
 const loginFormSchema = yup.object().shape({
   email: yup
@@ -98,6 +99,16 @@ function LoginForm() {
           <GoogleIcon className="h-4 w-4 ltr:mr-3 rtl:ml-3" />
           {t('text-login-google')}
         </Button>
+        {/* <Button
+          className="!bg-social-facebook !text-light hover:!bg-social-facebook-hover"
+          disabled={isLoading}
+          onClick={() => {
+            signIn('facebook');
+          }}
+        >
+          <FacebookIcon className="h-4 w-4 ltr:mr-3 rtl:ml-3" />
+          {t('text-login-facebook')}
+        </Button> */}
 
         <Button
           className="h-11 w-full !bg-gray-500 !text-light hover:!bg-gray-600 sm:h-12"

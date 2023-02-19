@@ -1,12 +1,12 @@
-/** @type {import('next').NextConfig} */
-const withPWA = require('next-pwa');
+// @type {import('next').NextConfig}
+// const withPWA = require('next-pwa');
 const runtimeCaching = require('next-pwa/cache');
 const { i18n } = require('./next-i18next.config');
 const nextConfig = {
   reactStrictMode: true,
   i18n,
   pwa: {
-    disable: process.env.NODE_ENV === 'development',
+    disable: process.env.NODE_ENV === 'production',
     dest: 'public',
     runtimeCaching,
   },
@@ -47,4 +47,4 @@ const nextConfig = {
   }),
 };
 
-module.exports = withPWA(nextConfig);
+module.exports = nextConfig;
