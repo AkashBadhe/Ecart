@@ -27,7 +27,7 @@ export class AddressesController {
 
   @Get(':id')
   address(@Param('id') id: string) {
-    return this.addressesService.findOne(+id);
+    return this.addressesService.findOne(id);
   }
 
   @Put(':id')
@@ -35,11 +35,11 @@ export class AddressesController {
     @Param('id') id: string,
     @Body() updateAddressDto: UpdateAddressDto,
   ) {
-    return this.addressesService.update(+id, updateAddressDto);
+    return this.addressesService.update(id, updateAddressDto);
   }
 
   @Delete(':id')
   deleteAddress(@Param('id') id: string) {
-    return this.addressesService.remove(+id);
+    return this.addressesService.remove(id);
   }
 }
