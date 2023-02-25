@@ -36,12 +36,12 @@ export class AuthorsController {
 
   @Put(':id')
   update(@Param('id') id: string, @Body() updateAuthorDto: UpdateAuthorDto) {
-    return this.authorsService.update(+id, updateAuthorDto);
+    return this.authorsService.update(id, updateAuthorDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.authorsService.remove(+id);
+    return this.authorsService.remove(id);
   }
 }
 

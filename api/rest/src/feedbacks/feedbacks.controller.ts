@@ -17,13 +17,13 @@ export class FeedbackController {
 
   @Get()
   async findAll() {
-    return this.feedbackService.findAllFeedBacks();
+    return this.feedbackService.findAll();
   }
 
   // get single feedback
   @Get(':id')
-  find(@Param('id') id: number) {
-    return this.feedbackService.findFeedBack(id);
+  find(@Param('id') id: string) {
+    return this.feedbackService.findById(id);
   }
 
   // create a new feedback
@@ -38,12 +38,12 @@ export class FeedbackController {
     @Param('id') id: string,
     @Body() updateFeedBackDto: UpdateFeedBackDto,
   ) {
-    return this.feedbackService.update(+id, updateFeedBackDto);
+    return this.feedbackService.update(id, updateFeedBackDto);
   }
 
   // delete a feedback
   @Delete(':id')
   delete(@Param('id') id: string) {
-    return this.feedbackService.delete(+id);
+    return this.feedbackService.delete(id);
   }
 }

@@ -1,35 +1,35 @@
+import { InjectModel } from '@nestjs/mongoose';
+import { Attribute, AttributeDocument } from './schemas/attribute.schema';
 import { Injectable } from '@nestjs/common';
 import { CreateAttributeDto } from './dto/create-attribute.dto';
 import { UpdateAttributeDto } from './dto/update-attribute.dto';
-import attributesJson from '@db/attributes.json';
-import { Attribute } from './entities/attribute.entity';
-import { plainToClass } from 'class-transformer';
-
-const attributes = plainToClass(Attribute, attributesJson);
+import { Model } from 'mongoose';
 
 @Injectable()
 export class AttributesService {
-  private attributes: Attribute[] = attributes;
+  constructor(
+    @InjectModel(Attribute.name) private attributeModel: Model<AttributeDocument>
+  ) {}
 
-  create(createAttributeDto: CreateAttributeDto) {
-    return this.attributes[0];
+  async create(attribute: CreateAttributeDto): Promise<Attribute> {
+    const createdAttribute = new this.attributeModel(attribute);
+    return createdAttribute.save();
   }
-
   findAll() {
-    return this.attributes;
+    return this.attributeModel.find().exec();
   }
 
-  findOne(param: string) {
-    return this.attributes.find(
-      (p) => p.id === Number(param) || p.slug === param,
-    );
+  async findOne(param: string) {
+    return this.attributeModel.find({ slug: param, _id: param }).exec();
+
   }
 
   update(id: number, updateAttributeDto: UpdateAttributeDto) {
-    return this.attributes[0];
+    return this.attributeModel.findByIdAndUpdate(id, updateAttributeDto, { new: true }).exec();
   }
 
+
   remove(id: number) {
-    return `This action removes a #${id} attribute`;
+    return this.attributeModel.findByIdAndDelete(id).exec();
   }
 }

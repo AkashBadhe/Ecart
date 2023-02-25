@@ -2,11 +2,17 @@ import { Injectable } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
 import { CreateCouponDto } from './dto/create-coupon.dto';
 import { UpdateCouponDto } from './dto/update-coupon.dto';
-import { Coupon } from './entities/coupon.entity';
 import couponsJson from '@db/coupons.json';
 import Fuse from 'fuse.js';
-import { GetCouponsDto } from './dto/get-coupons.dto';
+import {
+  GetCouponsDto,
+  QueryCouponsOrderByColumn,
+} from './dto/get-coupons.dto';
 import { paginate } from 'src/common/pagination/paginate';
+
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Coupon, CouponDocument } from './schemas/coupon.schema';
 
 const coupons = plainToClass(Coupon, couponsJson);
 const options = {
@@ -17,85 +23,67 @@ const fuse = new Fuse(coupons, options);
 
 @Injectable()
 export class CouponsService {
-  private coupons: Coupon[] = coupons;
+  constructor(
+    @InjectModel(Coupon.name) private couponModel: Model<CouponDocument>,
+  ) {}
 
-  create(createCouponDto: CreateCouponDto) {
-    return this.coupons[0];
+  async create(createCouponDto: CreateCouponDto): Promise<Coupon> {
+    const createdCoupon = new this.couponModel(createCouponDto);
+    return createdCoupon.save();
   }
 
-  getCoupons({ search, limit, page }: GetCouponsDto) {
-    if (!page) page = 1;
-    if (!limit) limit = 12;
-    const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
-    let data: Coupon[] = this.coupons;
-    // if (text?.replace(/%/g, '')) {
-    //   data = fuse.search(text)?.map(({ item }) => item);
-    // }
-
-    if (search) {
-      const parseSearchParams = search.split(';');
-      const searchText: any = [];
-      for (const searchParam of parseSearchParams) {
-        const [key, value] = searchParam.split(':');
-        // TODO: Temp Solution
-        if (key !== 'slug') {
-          searchText.push({
-            [key]: value,
-          });
+  async getCoupons({
+    search,
+    limit,
+    page,
+    orderBy = QueryCouponsOrderByColumn.UPDATED_AT,
+    orderByDirection = 'DESC',
+  }: GetCouponsDto) {
+    const skip = (page - 1) * limit;
+    const query = search
+      ? {
+          $or: [
+            { name: { $regex: search, $options: 'i' } },
+            { bio: { $regex: search, $options: 'i' } },
+          ],
         }
-      }
+      : {};
 
-      data = fuse
-        .search({
-          $and: searchText,
-        })
-        ?.map(({ item }) => item);
-    }
+    const sort: any = {
+      [orderBy]: orderByDirection.toLowerCase() === 'desc' ? -1 : 1,
+    };
 
-    const results = data.slice(startIndex, endIndex);
-    const url = `/coupons?search=${search}&limit=${limit}`;
+    const [authors, totalCount] = await Promise.all([
+      this.couponModel.find(query).sort(sort).skip(skip).limit(limit).exec(),
+      this.couponModel.countDocuments(query).exec(),
+    ]);
+
+    const url = `/authors?search=${search}&limit=${limit}`;
     return {
-      data: results,
-      ...paginate(data.length, page, limit, results.length, url),
+      ...paginate(totalCount, page, limit, authors.length, url),
+      data: authors,
     };
   }
 
-  getCoupon(param: string, language: string): Coupon {
-    return this.coupons.find((p) => p.code === param);
+  async getCoupon(code: string, language: string): Promise<Coupon> {
+    return this.couponModel.findOne({ code: code }).exec();
   }
 
-  update(id: number, updateCouponDto: UpdateCouponDto) {
-    return this.coupons[0];
+  async update(id: number, updateCouponDto: UpdateCouponDto) {
+    return this.couponModel
+      .findByIdAndUpdate(id, updateCouponDto, { new: true })
+      .exec();
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} coupon`;
+  async remove(id: number) {
+    return this.couponModel.findByIdAndDelete(id).exec();
   }
 
-  verifyCoupon(code: string) {
+  async verifyCoupon(code: string) {
+    const coupon = await this.getCoupon(code, undefined);
     return {
-      is_valid: true,
-      coupon: {
-        id: 9,
-        code: code,
-        description: null,
-        image: {
-          id: 925,
-          original:
-            'https://pickbazarlaravel.s3.ap-southeast-1.amazonaws.com/925/5x2x.png',
-          thumbnail:
-            'https://pickbazarlaravel.s3.ap-southeast-1.amazonaws.com/925/conversions/5x2x-thumbnail.jpg',
-        },
-        type: 'fixed',
-        amount: 5,
-        active_from: '2021-03-28T05:46:42.000Z',
-        expire_at: '2024-06-23T05:46:42.000Z',
-        created_at: '2021-03-28T05:48:16.000000Z',
-        updated_at: '2021-08-19T03:58:34.000000Z',
-        deleted_at: null,
-        is_valid: true,
-      },
+      is_valid: coupon.is_valid,
+      coupon: coupon,
     };
   }
 }

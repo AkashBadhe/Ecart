@@ -12,6 +12,7 @@ export class GetManufacturersDto extends PaginationArgs {
   sortedBy?: SortOrder;
   search?: string;
   language?: string;
+  orderByDirection: 'ASC' | 'DESC';
 }
 
 export enum QueryManufacturersOrderByColumn {

@@ -1,83 +1,79 @@
 import { Injectable } from '@nestjs/common';
-import { Manufacturer } from './entities/manufacturer.entity';
-import manufacturersJson from '@db/manufacturers.json';
-import { plainToClass } from 'class-transformer';
-import Fuse from 'fuse.js';
 import { GetTopManufacturersDto } from './dto/get-top-manufacturers.dto';
 import {
   GetManufacturersDto,
   ManufacturerPaginator,
+  QueryManufacturersOrderByColumn,
 } from './dto/get-manufactures.dto';
 import { paginate } from '../common/pagination/paginate';
 import { CreateManufacturerDto } from './dto/create-manufacturer.dto';
 import { UpdateManufacturerDto } from './dto/update-manufacturer.dto';
-
-const manufacturers = plainToClass(Manufacturer, manufacturersJson);
-
-const options = {
-  keys: ['name'],
-  threshold: 0.3,
-};
-
-const fuse = new Fuse(manufacturers, options);
-
+import {
+  ManufacturerDocument,
+  Manufacturer,
+} from './schemas/manufacturer.schema';
+import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+import { getSearchQuery } from 'src/common/utils';
 @Injectable()
 export class ManufacturersService {
-  private manufacturers: Manufacturer[] = manufacturers;
+  constructor(
+    @InjectModel(Manufacturer.name)
+    private manufacturerModel: Model<ManufacturerDocument>,
+  ) {}
 
-  create(createManufactureDto: CreateManufacturerDto) {
-    return this.manufacturers[0];
+  async create(createManufactureDto: CreateManufacturerDto) {
+    return await this.manufacturerModel.create(createManufactureDto);
   }
 
   async getManufactures({
-    limit,
-    page,
-    search,
+    page = 1,
+    limit = 10,
+    search = '',
+    orderBy = QueryManufacturersOrderByColumn.CREATED_AT,
+    orderByDirection = 'DESC',
   }: GetManufacturersDto): Promise<ManufacturerPaginator> {
-    if (!page) page = 1;
-    if (!limit) limit = 30;
-    const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
-    let data: Manufacturer[] = this.manufacturers;
-    if (search) {
-      console.log('search', search);
-      const parseSearchParams = search.split(';');
-      for (const searchParam of parseSearchParams) {
-        const [key, value] = searchParam.split(':');
-        data = fuse.search(value)?.map(({ item }) => item);
-      }
-    }
+    const skip = (page - 1) * limit;
+    const query = getSearchQuery(search);
 
-    const results = data.slice(startIndex, endIndex);
+    const sort: any = {
+      [orderBy]: orderByDirection.toLowerCase() === 'desc' ? -1 : 1,
+    };
+
+    const [authors, totalCount] = await Promise.all([
+      this.manufacturerModel
+        .find(query)
+        .sort(sort)
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this.manufacturerModel.countDocuments(query).exec(),
+    ]);
+
     const url = `/manufacturers?search=${search}&limit=${limit}`;
     return {
-      data: results,
-      ...paginate(data.length, page, limit, results.length, url),
+      ...paginate(totalCount, page, limit, authors.length, url),
+      data: authors,
     };
   }
 
   async getTopManufactures({
     limit = 10,
   }: GetTopManufacturersDto): Promise<Manufacturer[]> {
-    return manufacturers.slice(0, limit);
+    return this.manufacturerModel.find().limit(limit).exec();
   }
 
   async getManufacturesBySlug(slug: string): Promise<Manufacturer> {
-    return this.manufacturers.find(
-      (singleManufacture) => singleManufacture.slug === slug,
-    );
+    return this.manufacturerModel.findOne({ slug: slug }).exec();
   }
 
-  update(id: number, updateManufacturesDto: UpdateManufacturerDto) {
-    const manufacturer = this.manufacturers.find((p) => p.id === Number(id));
-
-    // Update author
-    manufacturer.is_approved = updateManufacturesDto.is_approved ?? true;
-
-    return manufacturer;
+  update(id: string, updateManufacturesDto: UpdateManufacturerDto) {
+    return this.manufacturerModel
+      .findByIdAndUpdate(id, updateManufacturesDto, { new: true })
+      .exec();
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} product`;
+  async remove(id: string): Promise<any> {
+    return this.manufacturerModel.findByIdAndDelete(id).exec();
   }
 }

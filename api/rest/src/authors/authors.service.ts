@@ -1,13 +1,16 @@
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import { UpdateAuthorDto } from './dto/update-author.dto';
 import { plainToClass } from 'class-transformer';
 import authorsJson from '@db/authors.json';
 import { Author } from './entities/author.entity';
 import Fuse from 'fuse.js';
-import { GetAuthorDto } from './dto/get-author.dto';
+import { GetAuthorDto, QueryAuthorsOrderByColumn } from './dto/get-author.dto';
 import { paginate } from '../common/pagination/paginate';
 import { GetTopAuthorsDto } from './dto/get-top-authors.dto';
 import { CreateAuthorDto } from './dto/create-author.dto';
+import { Model } from 'mongoose';
+import { PaginationResult } from 'src/common/dto/paginationResult.dto';
 
 const authors = plainToClass(Author, authorsJson);
 
@@ -20,53 +23,63 @@ const fuse = new Fuse(authors, options);
 
 @Injectable()
 export class AuthorsService {
-  private authors: Author[] = authors;
+  constructor(
+    @InjectModel(Author.name) private readonly authorModel: Model<Author>,
+  ) {}
 
-  create(createAuthorDto: CreateAuthorDto) {
-    return this.authors[0];
+  async create(createAuthorDto: CreateAuthorDto) {
+    const createAddress = await this.authorModel.create(createAuthorDto);
+    return createAddress;
   }
 
-  getAuthors({ page, limit, search }: GetAuthorDto) {
-    if (!page) page = 1;
-    if (!limit) limit = 30;
-    const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
-    let data: Author[] = this.authors;
-    if (search) {
-      const parseSearchParams = search.split(';');
-      for (const searchParam of parseSearchParams) {
-        const [key, value] = searchParam.split(':');
-        data = fuse.search(value)?.map(({ item }) => item);
-      }
-    }
+  async getAuthors({
+    page = 1,
+    limit = 10,
+    search = '',
+    orderBy = QueryAuthorsOrderByColumn.CREATED_AT,
+    orderByDirection = 'DESC',
+  }: GetAuthorDto) {
+    const skip = (page - 1) * limit;
+    const query = search
+      ? {
+          $or: [
+            { name: { $regex: search, $options: 'i' } },
+            { bio: { $regex: search, $options: 'i' } },
+          ],
+        }
+      : {};
 
-    const results = data.slice(startIndex, endIndex);
+    const sort: any = {
+      [orderBy]: orderByDirection.toLowerCase() === 'desc' ? -1 : 1,
+    };
+
+    const [authors, totalCount] = await Promise.all([
+      this.authorModel.find(query).sort(sort).skip(skip).limit(limit).exec(),
+      this.authorModel.countDocuments(query).exec(),
+    ]);
 
     const url = `/authors?search=${search}&limit=${limit}`;
     return {
-      data: results,
-      ...paginate(data.length, page, limit, results.length, url),
+      ...paginate(totalCount, page, limit, authors.length, url),
+      data: authors,
     };
   }
 
-  getAuthorBySlug(slug: string): Author {
-    return this.authors.find((p) => p.slug === slug);
+  async getAuthorBySlug(slug: string): Promise<Author> {
+    return this.authorModel.findOne({ slug: slug }).exec();
   }
 
   async getTopAuthors({ limit = 10 }: GetTopAuthorsDto): Promise<Author[]> {
-    return this.authors.slice(0, limit);
+    return this.authorModel.find().limit(limit).exec();
   }
 
-  update(id: number, updateAuthorDto: UpdateAuthorDto) {
-    const author = this.authors.find((p) => p.id === Number(id));
-
-    // Update author
-    author.is_approved = updateAuthorDto.is_approved ?? true;
-
-    return author;
+  async update(id: string, updateAuthorDto: UpdateAuthorDto): Promise<Author> {
+    return this.authorModel
+      .findByIdAndUpdate(id, updateAuthorDto, { new: true })
+      .exec();
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} product`;
+  async remove(id: string): Promise<any> {
+    return this.authorModel.findByIdAndDelete(id).exec();
   }
 }

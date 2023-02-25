@@ -1,7 +1,6 @@
-import { CoreEntity } from 'src/common/entities/core.entity';
 import { Attribute } from './attribute.entity';
 
-export class AttributeValue extends CoreEntity {
+export class AttributeValue {
   shop_id: number;
   value: string;
   meta?: string;

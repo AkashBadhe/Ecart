@@ -1,70 +1,65 @@
 import { Injectable } from '@nestjs/common';
-import { plainToClass } from 'class-transformer';
 import { CreateCategoryDto } from './dto/create-category.dto';
-import { GetCategoriesDto } from './dto/get-categories.dto';
+import { GetCategoriesDto, QueryCategoriesOrderByColumn } from './dto/get-categories.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { Category } from './entities/category.entity';
-import Fuse from 'fuse.js';
-import categoriesJson from '@db/categories.json';
 import { paginate } from 'src/common/pagination/paginate';
-
-const categories = plainToClass(Category, categoriesJson);
-const options = {
-  keys: ['name', 'type.slug'],
-  threshold: 0.3,
-};
-const fuse = new Fuse(categories, options);
-
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Category, CategoryDocument } from './schemas/category.schema';
 @Injectable()
 export class CategoriesService {
-  private categories: Category[] = categories;
+  constructor(
+    @InjectModel(Category.name) private categoryModel: Model<CategoryDocument>,
+  ) {}
 
-  create(createCategoryDto: CreateCategoryDto) {
-    return this.categories[0];
+  async create(category: CreateCategoryDto): Promise<Category> {
+    const createdCategory = new this.categoryModel(category);
+    return createdCategory.save();
   }
 
-  getCategories({ limit, page, search, parent }: GetCategoriesDto) {
-    if (!page) page = 1;
-    const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
-    let data: Category[] = this.categories;
-    if (search) {
-      const parseSearchParams = search.split(';');
-      for (const searchParam of parseSearchParams) {
-        const [key, value] = searchParam.split(':');
-        // data = data.filter((item) => item[key] === value);
-        data = fuse.search(value)?.map(({ item }) => item);
-      }
-    }
-    if (parent === 'null') {
-      data = data.filter((item) => item.parent === null);
-    }
-    // if (text?.replace(/%/g, '')) {
-    //   data = fuse.search(text)?.map(({ item }) => item);
-    // }
-    // if (hasType) {
-    //   data = fuse.search(hasType)?.map(({ item }) => item);
-    // }
+  async getCategories({
+    limit,
+    page,
+    parent,
+    search = '',
+    orderBy = QueryCategoriesOrderByColumn.CREATED_AT,
+    orderByDirection = 'DESC',
+  }: GetCategoriesDto) {
+    const skip = (page - 1) * limit;
+    const query = search
+      ? {
+          $or: [
+            { name: { $regex: search, $options: 'i' } },
+            { bio: { $regex: search, $options: 'i' } },
+          ],
+        }
+      : {};
 
-    const results = data.slice(startIndex, endIndex);
+    const sort: any = {
+      [orderBy]: orderByDirection.toLowerCase() === 'desc' ? -1 : 1,
+    };
+
+    const [authors, totalCount] = await Promise.all([
+      this.categoryModel.find(query).sort(sort).skip(skip).limit(limit).exec(),
+      this.categoryModel.countDocuments(query).exec(),
+    ]);
+
     const url = `/categories?search=${search}&limit=${limit}&parent=${parent}`;
     return {
-      data: results,
-      ...paginate(data.length, page, limit, results.length, url),
+      ...paginate(totalCount, page, limit, authors.length, url),
+      data: authors,
     };
   }
 
-  getCategory(param: string, language: string): Category {
-    return this.categories.find(
-      (p) => p.id === Number(param) || p.slug === param,
-    );
+  async getCategory(param: string, language: string) {
+    return this.categoryModel.find({ slug: param, _id: param }).exec();
   }
 
   update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return this.categories[0];
+    return this.categoryModel.findByIdAndUpdate(id, updateCategoryDto, { new: true }).exec();
   }
 
   remove(id: number) {
-    return `This action removes a #${id} category`;
+    return this.categoryModel.findByIdAndDelete(id).exec();
   }
 }
