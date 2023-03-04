@@ -31,13 +31,13 @@ export class ManufacturersService {
     limit = 10,
     search = '',
     orderBy = QueryManufacturersOrderByColumn.CREATED_AT,
-    orderByDirection = 'DESC',
+    sortedBy,
   }: GetManufacturersDto): Promise<ManufacturerPaginator> {
     const skip = (page - 1) * limit;
     const query = getSearchQuery(search);
 
     const sort: any = {
-      [orderBy]: orderByDirection.toLowerCase() === 'desc' ? -1 : 1,
+      [orderBy]: sortedBy.toLowerCase() === 'desc' ? -1 : 1,
     };
 
     const [authors, totalCount] = await Promise.all([

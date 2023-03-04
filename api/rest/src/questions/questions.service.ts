@@ -2,11 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
 import Fuse from 'fuse.js';
 import { paginate } from 'src/common/pagination/paginate';
-import { Question } from './entities/question.entity';
 import { GetQuestionDto } from './dto/get-questions.dto';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
 import questionsJSON from '@db/questions.json';
+
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Question, QuestionDocument } from './schemas/questions.schema';
+import { getSearchQuery } from 'src/common/utils';
 
 const questions = plainToClass(Question, questionsJSON);
 const options = {
@@ -17,54 +21,54 @@ const fuse = new Fuse(questions, options);
 
 @Injectable()
 export class QuestionService {
-  private question: Question[] = questions;
+  constructor(
+    @InjectModel(Question.name)
+    private readonly questionModel: Model<QuestionDocument>,
+  ) {}
 
-  findAllQuestions({
+  async findAllQuestions({
     limit,
     page,
     search,
     answer,
     product_id,
+    orderBy,
+    sortedBy,
   }: GetQuestionDto) {
-    if (!page) page = 1;
-    if (!limit) limit = 10;
-    const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
-    let data: Question[] = this.question;
+    const skip = (page - 1) * limit;
+    const query = getSearchQuery(search);
 
-    if (search) {
-      const parseSearchParams = search.split(';');
-      for (const searchParam of parseSearchParams) {
-        const [key, value] = searchParam.split(':');
-        data = fuse.search(value)?.map(({ item }) => item);
-      }
-    }
+    const sort: any = {
+      [orderBy]: sortedBy.toLowerCase() === 'desc' ? -1 : 1,
+    };
 
-    if (product_id) {
-      data = data.filter((p) => p.product_id === Number(product_id));
-    }
+    const [questions, totalCount] = await Promise.all([
+      this.questionModel.find(query).sort(sort).skip(skip).limit(limit).exec(),
+      this.questionModel.countDocuments(query).exec(),
+    ]);
 
-    const results = data.slice(startIndex, endIndex);
     const url = `/questions?search=${search}&answer=${answer}&limit=${limit}`;
     return {
-      data: results,
-      ...paginate(data.length, page, limit, results.length, url),
+      data: questions,
+      ...paginate(totalCount, page, limit, questions.length, url),
     };
   }
 
-  findQuestion(id: number) {
-    return this.question.find((p) => p.id === id);
+  async findQuestion(id: string) {
+    return this.questionModel.findById(id);
   }
 
-  create(createQuestionDto: CreateQuestionDto) {
-    return this.question[0];
+  async create(createQuestionDto: CreateQuestionDto) {
+    return this.questionModel.create(createQuestionDto);
   }
 
-  update(id: number, updateQuestionDto: UpdateQuestionDto) {
-    return this.question[0];
+  async update(id: string, updateQuestionDto: UpdateQuestionDto) {
+    return this.questionModel
+      .findByIdAndUpdate(id, updateQuestionDto, { new: true })
+      .exec();
   }
 
-  delete(id: number) {
-    return this.question[0];
+  delete(id: string) {
+    return this.questionModel.findByIdAndDelete(id).exec();
   }
 }

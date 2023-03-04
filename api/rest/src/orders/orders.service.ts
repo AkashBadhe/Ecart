@@ -198,14 +198,7 @@ export class OrdersService {
     sortedBy,
   }: GetOrderStatusesDto) {
     const skip = (page - 1) * limit;
-    const query = search
-      ? {
-          $or: [
-            { name: { $regex: search, $options: 'i' } },
-            { bio: { $regex: search, $options: 'i' } },
-          ],
-        }
-      : {};
+    const query = getSearchQuery(search);
 
     const sort: any = {
       [orderBy]: sortedBy.toLowerCase() === 'desc' ? -1 : 1,

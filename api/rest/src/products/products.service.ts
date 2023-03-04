@@ -9,6 +9,7 @@ import productsJson from '@db/products.json';
 import { Model, Types } from 'mongoose';
 import { Product, ProductDocument } from './schemas/products.schema';
 import { GetPopularProductsDto } from './dto/get-popular-products.dto';
+import { getSearchQuery } from 'src/common/utils';
 
 const products = plainToClass(Product, productsJson);
 
@@ -45,14 +46,7 @@ export class ProductsService {
     orderBy,
   }: GetProductsDto) {
     const skip = (page - 1) * limit;
-    const query = search
-      ? {
-          $or: [
-            { name: { $regex: search, $options: 'i' } },
-            { bio: { $regex: search, $options: 'i' } },
-          ],
-        }
-      : {};
+    const query = getSearchQuery(search);
 
     const sort: any = {
       [orderBy]: sortedBy.toLowerCase() === 'desc' ? -1 : 1,

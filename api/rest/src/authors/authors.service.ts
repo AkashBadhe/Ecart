@@ -8,6 +8,7 @@ import { CreateAuthorDto } from './dto/create-author.dto';
 import { Model } from 'mongoose';
 import { Author, AuthorDocument } from './schemas/authors.schemas';
 import { SortOrder } from 'src/common/dto/generic-conditions.dto';
+import { getSearchQuery } from 'src/common/utils';
 
 @Injectable()
 export class AuthorsService {
@@ -28,14 +29,7 @@ export class AuthorsService {
     orderByDirection = SortOrder.DESC,
   }: GetAuthorDto) {
     const skip = (page - 1) * limit;
-    const query = search
-      ? {
-          $or: [
-            { name: { $regex: search, $options: 'i' } },
-            { bio: { $regex: search, $options: 'i' } },
-          ],
-        }
-      : {};
+    const query = getSearchQuery(search);
 
     const sort: any = {
       [orderBy]: orderByDirection.toLowerCase() === 'desc' ? -1 : 1,

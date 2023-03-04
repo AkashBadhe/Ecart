@@ -6,6 +6,7 @@ import { paginate } from 'src/common/pagination/paginate';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Category, CategoryDocument } from './schemas/category.schema';
+import { getSearchQuery } from 'src/common/utils';
 @Injectable()
 export class CategoriesService {
   constructor(
@@ -26,14 +27,7 @@ export class CategoriesService {
     orderByDirection = 'DESC',
   }: GetCategoriesDto) {
     const skip = (page - 1) * limit;
-    const query = search
-      ? {
-          $or: [
-            { name: { $regex: search, $options: 'i' } },
-            { bio: { $regex: search, $options: 'i' } },
-          ],
-        }
-      : {};
+    const query = getSearchQuery(search);
 
     const sort: any = {
       [orderBy]: orderByDirection.toLowerCase() === 'desc' ? -1 : 1,
