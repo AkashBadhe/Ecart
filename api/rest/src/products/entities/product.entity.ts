@@ -8,12 +8,12 @@ import { Tag } from 'src/tags/entities/tag.entity';
 import { Type } from 'src/types/entities/type.entity';
 import { Review } from '../../reviews/entities/review.entity';
 
-enum ProductStatus {
+export enum ProductStatus {
   PUBLISH = 'publish',
   DRAFT = 'draft',
 }
 
-enum ProductType {
+export enum ProductType {
   SIMPLE = 'simple',
   VARIABLE = 'variable',
 }

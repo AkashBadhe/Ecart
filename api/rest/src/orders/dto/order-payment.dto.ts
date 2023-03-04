@@ -1,3 +1,3 @@
 export class OrderPaymentDto {
-  tracking_number: number;
+  tracking_number: string;
 }

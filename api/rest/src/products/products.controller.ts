@@ -30,18 +30,18 @@ export class ProductsController {
   }
 
   @Get(':slug')
-  async getProductBySlug(@Param('slug') slug: string): Promise<Product> {
+  async getProductBySlug(@Param('slug') slug: string) {
     return this.productsService.getProductBySlug(slug);
   }
 
   @Put(':id')
   update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-    return this.productsService.update(+id, updateProductDto);
+    return this.productsService.update(id, updateProductDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.productsService.remove(+id);
+    return this.productsService.remove(id);
   }
 }
 

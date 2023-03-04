@@ -10,10 +10,9 @@ export class AuthorPaginator extends Paginator<Author> {
 
 export class GetAuthorDto extends PaginationArgs {
   orderBy?: QueryAuthorsOrderByColumn;
-  sortedBy?: SortOrder;
   search?: string;
   language?: string;
-  orderByDirection: 'ASC' | 'DESC';
+  orderByDirection?: SortOrder;
 }
 
 export enum QueryAuthorsOrderByColumn {

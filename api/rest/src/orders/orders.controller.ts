@@ -36,23 +36,23 @@ export class OrdersController {
   }
 
   @Get(':id')
-  getOrderById(@Param('id') id: number) {
-    return this.ordersService.getOrderByIdOrTrackingNumber(Number(id));
+  getOrderById(@Param('id') id: string) {
+    return this.ordersService.getOrderById(id);
   }
 
   @Get('tracking-number/:tracking_id')
-  getOrderByTrackingNumber(@Param('tracking_id') tracking_id: number) {
-    return this.ordersService.getOrderByIdOrTrackingNumber(tracking_id);
+  getOrderByTrackingNumber(@Param('tracking_id') tracking_id: string) {
+    return this.ordersService.getOrderByTrackingNumber(tracking_id);
   }
 
   @Put(':id')
   update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
-    return this.ordersService.update(+id, updateOrderDto);
+    return this.ordersService.update(id, updateOrderDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.ordersService.remove(+id);
+    return this.ordersService.remove(id);
   }
 
   @Post('checkout/verify')
@@ -63,7 +63,7 @@ export class OrdersController {
   @HttpCode(200)
   async submitPayment(@Body() orderPaymentDto: OrderPaymentDto): Promise<void> {
     const { tracking_number } = orderPaymentDto;
-    const order: Order = await this.ordersService.getOrderByIdOrTrackingNumber(
+    const order: Order = await this.ordersService.getOrderByTrackingNumber(
       tracking_number,
     );
     switch (order.payment_gateway.toString().toLowerCase()) {
@@ -101,12 +101,12 @@ export class OrderStatusController {
 
   @Put(':id')
   update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
-    return this.ordersService.update(+id, updateOrderDto);
+    return this.ordersService.update(id, updateOrderDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.ordersService.remove(+id);
+    return this.ordersService.remove(id);
   }
 }
 

@@ -1,30 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { UpdateAuthorDto } from './dto/update-author.dto';
-import { plainToClass } from 'class-transformer';
-import authorsJson from '@db/authors.json';
-import { Author } from './entities/author.entity';
-import Fuse from 'fuse.js';
 import { GetAuthorDto, QueryAuthorsOrderByColumn } from './dto/get-author.dto';
 import { paginate } from '../common/pagination/paginate';
 import { GetTopAuthorsDto } from './dto/get-top-authors.dto';
 import { CreateAuthorDto } from './dto/create-author.dto';
 import { Model } from 'mongoose';
-import { PaginationResult } from 'src/common/dto/paginationResult.dto';
-
-const authors = plainToClass(Author, authorsJson);
-
-const options = {
-  keys: ['name', 'slug'],
-  threshold: 0.3,
-};
-
-const fuse = new Fuse(authors, options);
+import { Author, AuthorDocument } from './schemas/authors.schemas';
+import { SortOrder } from 'src/common/dto/generic-conditions.dto';
 
 @Injectable()
 export class AuthorsService {
   constructor(
-    @InjectModel(Author.name) private readonly authorModel: Model<Author>,
+    @InjectModel(Author.name) private readonly authorModel: Model<AuthorDocument>,
   ) {}
 
   async create(createAuthorDto: CreateAuthorDto) {
@@ -37,7 +25,7 @@ export class AuthorsService {
     limit = 10,
     search = '',
     orderBy = QueryAuthorsOrderByColumn.CREATED_AT,
-    orderByDirection = 'DESC',
+    orderByDirection = SortOrder.DESC,
   }: GetAuthorDto) {
     const skip = (page - 1) * limit;
     const query = search
