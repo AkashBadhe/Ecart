@@ -105,7 +105,7 @@ yarn
 yarn start:dev
 ```
 
-**NOTE** : This will start the server at `http://localhost:5000/api/` for rest api and you can access it from browser at `http://localhost:5000/docs`(for rest swagger doc).
+**NOTE** : This will start the server at `http://localhost:5050/api/` for rest api and you can access it from browser at `http://localhost:5050/docs`(for rest swagger doc).
 
 <br>
 
