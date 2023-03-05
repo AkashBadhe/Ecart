@@ -78,10 +78,10 @@ export class Product extends CoreEntity {
   @Prop({ type: String })
   sku?: string;
 
-  @Prop({ type: [{ type: Number, ref: 'Attachment' }] })
+  @Prop()
   gallery?: Attachment[];
 
-  @Prop({ type: Number, ref: 'Attachment' })
+  @Prop()
   image?: Attachment;
 
   @Prop({ required: true, enum: ProductStatus, default: ProductStatus.DRAFT })

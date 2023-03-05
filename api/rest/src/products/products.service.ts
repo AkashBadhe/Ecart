@@ -1,17 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { plainToClass } from 'class-transformer';
 import { CreateProductDto } from './dto/create-product.dto';
-import { GetProductsDto, ProductPaginator } from './dto/get-products.dto';
+import { GetProductsDto, QueryProductsOrderByColumn } from './dto/get-products.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { paginate } from 'src/common/pagination/paginate';
-import productsJson from '@db/products.json';
 import { Model, Types } from 'mongoose';
 import { Product, ProductDocument } from './schemas/products.schema';
 import { GetPopularProductsDto } from './dto/get-popular-products.dto';
 import { getSearchQuery } from 'src/common/utils';
-
-const products = plainToClass(Product, productsJson);
+import { SortOrder } from 'src/common/dto/generic-conditions.dto';
 
 const options = {
   keys: [
@@ -42,11 +39,13 @@ export class ProductsService {
     page = 1,
     limit = 10,
     search = '',
-    sortedBy,
-    orderBy,
+    sortedBy = SortOrder.DESC,
+    orderBy = QueryProductsOrderByColumn.UPDATED_AT,
+    searchJoin = '$or'
   }: GetProductsDto) {
     const skip = (page - 1) * limit;
-    const query = getSearchQuery(search);
+    const query = getSearchQuery(search, searchJoin);
+    console.log(JSON.stringify(query));
 
     const sort: any = {
       [orderBy]: sortedBy.toLowerCase() === 'desc' ? -1 : 1,
@@ -71,9 +70,9 @@ export class ProductsService {
   async getProductBySlug(identifier: string) {
     let product;
     if (Types.ObjectId.isValid(identifier)) {
-      product = await this.productModel.findById(identifier);
+      product = await this.productModel.findById(identifier).exec();
     } else {
-      product = await this.productModel.findOne({ slug: identifier });
+      product = await this.productModel.findOne({ slug: identifier }).exec();
     }
     let related_products = [];
     if (product?.type?.slug) {
@@ -82,10 +81,9 @@ export class ProductsService {
         .limit(20)
         .exec();
     }
-    return {
-      ...product,
-      related_products,
-    };
+
+    product.related_products = related_products;
+    return product;
   }
 
   async getPopularProducts({ limit, type_slug }: GetPopularProductsDto) {

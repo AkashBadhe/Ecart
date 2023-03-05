@@ -15,6 +15,7 @@ export class GetCategoriesDto extends PaginationArgs {
   parent?: number | string = 'null';
   language?: string;
   orderByDirection: 'ASC' | 'DESC';
+  searchJoin?: string;
 }
 
 export enum QueryCategoriesOrderByColumn {
