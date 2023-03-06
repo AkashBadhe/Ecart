@@ -1,3 +1,4 @@
+import { SortOrder } from 'src/common/dto/generic-conditions.dto';
 import { PaginationArgs } from 'src/common/dto/pagination-args.dto';
 import { Paginator } from 'src/common/dto/paginator.dto';
 
@@ -9,7 +10,7 @@ export class ProductPaginator extends Paginator<Product> {
 
 export class GetProductsDto extends PaginationArgs {
   orderBy?: string;
-  sortedBy?: string;
+  sortedBy?: SortOrder;
   searchJoin?: string;
   search?: string;
   date_range?: string;

@@ -12,7 +12,8 @@ export class GetAuthorDto extends PaginationArgs {
   orderBy?: QueryAuthorsOrderByColumn;
   search?: string;
   language?: string;
-  orderByDirection?: SortOrder;
+  sortedBy?: SortOrder;
+  searchJoin?: string;
 }
 
 export enum QueryAuthorsOrderByColumn {

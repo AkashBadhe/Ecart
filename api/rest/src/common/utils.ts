@@ -4,21 +4,23 @@ export const getSearchQuery = (search: string, searchJoin: string = 'or') => {
     const conditions = [];
     for (const searchParam of parseSearchParams) {
       const [key, value] = searchParam.split(':');
-      if(isNaN(parseFloat(value))) {
+      if (isNaN(parseFloat(value))) {
         conditions.push({ [key]: { $regex: value, $options: 'i' } });
       } else {
-        conditions.push({ [key]: +value});
+        conditions.push({ [key]: +value });
       }
     }
 
-    if(searchJoin === 'and') {
+    if (conditions.length === 1) {
+      return conditions[0];
+    } else if (searchJoin === 'and') {
       return {
         $and: conditions,
       };
-    }
-    return {
-      $or: conditions,
-    };
+    } else
+      return {
+        $or: conditions,
+      };
   }
 
   return {};

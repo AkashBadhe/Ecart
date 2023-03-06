@@ -15,6 +15,7 @@ import {
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { getSearchQuery } from 'src/common/utils';
+import { SortOrder } from 'src/common/dto/generic-conditions.dto';
 @Injectable()
 export class ManufacturersService {
   constructor(
@@ -30,8 +31,8 @@ export class ManufacturersService {
     page = 1,
     limit = 10,
     search = '',
-    orderBy = QueryManufacturersOrderByColumn.CREATED_AT,
-    sortedBy,
+    orderBy = QueryManufacturersOrderByColumn.UPDATED_AT,
+    sortedBy = SortOrder.DESC,
   }: GetManufacturersDto): Promise<ManufacturerPaginator> {
     const skip = (page - 1) * limit;
     const query = getSearchQuery(search);

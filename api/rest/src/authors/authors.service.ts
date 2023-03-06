@@ -26,19 +26,21 @@ export class AuthorsService {
     limit = 10,
     search = '',
     orderBy = QueryAuthorsOrderByColumn.CREATED_AT,
-    orderByDirection = SortOrder.DESC,
+    sortedBy = SortOrder.DESC,
+    searchJoin = '$or'
   }: GetAuthorDto) {
     const skip = (page - 1) * limit;
-    const query = getSearchQuery(search);
-
+    const query = getSearchQuery(search, searchJoin);
+    console.log("🚀 ~ file: authors.service.ts:34 ~ AuthorsService ~ query:", query)
     const sort: any = {
-      [orderBy]: orderByDirection.toLowerCase() === 'desc' ? -1 : 1,
+      [orderBy]: sortedBy.toLowerCase() === 'desc' ? -1 : 1,
     };
 
     const [authors, totalCount] = await Promise.all([
       this.authorModel.find(query).sort(sort).skip(skip).limit(limit).exec(),
       this.authorModel.countDocuments(query).exec(),
     ]);
+    console.log("🚀 ~ file: authors.service.ts:43 ~ AuthorsService ~ authors:", authors)
 
     const url = `/authors?search=${search}&limit=${limit}`;
     return {

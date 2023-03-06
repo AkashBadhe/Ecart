@@ -20,6 +20,7 @@ export default function Dashboard({
 }: {
   userPermissions: string[];
 }) {
+  console.log('userPermissions', userPermissions);
   if (userPermissions?.includes(SUPER_ADMIN)) {
     return <AdminDashboard />;
   }
@@ -29,7 +30,9 @@ export default function Dashboard({
 Dashboard.Layout = AppLayout;
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
+  console.log("getServerSideProps");
   const { locale } = ctx;
+  
   // TODO: Improve it
   const generateRedirectUrl =
     locale !== Config.defaultLanguage

@@ -77,10 +77,14 @@ export default function CreateOrUpdateProductForm({
     formState: { errors },
   } = methods;
 
-  const { mutate: createProduct, isLoading: creating } =
-    useCreateProductMutation();
-  const { mutate: updateProduct, isLoading: updating } =
-    useUpdateProductMutation();
+  const {
+    mutate: createProduct,
+    isLoading: creating,
+  } = useCreateProductMutation();
+  const {
+    mutate: updateProduct,
+    isLoading: updating,
+  } = useUpdateProductMutation();
 
   const onSubmit = async (values: ProductFormValues) => {
     const inputValues = {
@@ -197,10 +201,10 @@ export default function CreateOrUpdateProductForm({
                 className="mb-5"
               />
 
-              {isSlugEditable ? (
+              {/* {isSlugEditable ? (
                 <div className="relative mb-5">
                   <Input
-                    label={`${t('Slug')}`}
+                    label={`${t('form:input-label-slug')}`}
                     {...register('slug')}
                     error={t(errors.slug?.message!)}
                     variant="outline"
@@ -217,14 +221,23 @@ export default function CreateOrUpdateProductForm({
                 </div>
               ) : (
                 <Input
-                  label={`${t('Slug')}`}
-                  {...register('slug')}
-                  value={slugAutoSuggest}
-                  variant="outline"
-                  className="mb-5"
-                  disabled
-                />
-              )}
+                label={`${t('form:input-label-slug')}`}
+                {...register('slug')}
+                value={slugAutoSuggest}
+                variant="outline"
+                className="mb-5"
+                disabled
+              />
+              
+              )} */}
+              
+              <Input
+                label={`${t('form:input-label-slug')}`}
+                {...register('slug')}
+                variant="outline"
+                className="mb-5"
+              />
+
               <Input
                 label={`${t('form:input-label-unit')}*`}
                 {...register('unit')}

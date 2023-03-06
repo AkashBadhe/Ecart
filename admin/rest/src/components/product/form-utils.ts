@@ -31,7 +31,7 @@ export type ProductFormValues = Omit<
   | 'tags'
   | 'digital_file'
 > & {
-  type: Pick<Type, 'id' | 'name'>;
+  type: Type;
   product_type: ProductTypeOption;
   author: Pick<Author, 'id' | 'name'>;
   manufacturer: Pick<Manufacturer, 'id' | 'name'>;
