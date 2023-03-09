@@ -35,7 +35,7 @@ cd /shop
 
 yarn
 
-yarn yarn dev:rest
+yarn dev:rest
 
 ```
 
