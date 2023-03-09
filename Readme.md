@@ -9,7 +9,7 @@ E commerce web site which supports multiple stores
 
 ```bash
 
-cd /api/rest
+cd api/rest
 
 # on api/rest directory
 
@@ -23,7 +23,7 @@ Swagger documentation url: http://localhost:5050/docs#
 
   
 
-2. Go to `/shop` folder.  Crete .env file and copy the content from .env.template to .env file
+2. Go to `shop` folder.  Crete .env file and copy the content from .env.template to .env file
 
   
 
@@ -43,7 +43,7 @@ Shop url: http://localhost:3005/
 
   
 
-3. Go to `/admin/rest` folder.  Crete .env file and copy the content from .env.template to .env file
+3. Go to `admin/rest` folder.  Crete .env file and copy the content from .env.template to .env file
 
   
 
