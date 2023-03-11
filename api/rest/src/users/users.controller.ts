@@ -34,7 +34,7 @@ export class UsersController {
 
   @Put(':id')
   updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+    return this.usersService.update(id, updateUserDto);
   }
 
   @Delete(':id')
@@ -43,12 +43,12 @@ export class UsersController {
   }
 
   @Post('unblock-user')
-  activeUser(@Body('id') id: number) {
-    return this.usersService.activeUser(+id);
+  activeUser(@Body('id') id: string) {
+    return this.usersService.activeUser(id);
   }
 
   @Post('block-user')
-  banUser(@Body('id') id: number) {
+  banUser(@Body('id') id: string) {
     return this.usersService.banUser(id);
   }
 

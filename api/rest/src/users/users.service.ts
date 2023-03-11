@@ -58,7 +58,7 @@ export class UsersService {
     return this.userModel.find({shop_id: id}).exec();
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto) {
+  async update(id: string, updateUserDto: UpdateUserDto) {
     return this.userModel
       .findByIdAndUpdate(id, updateUserDto, { new: true })
       .exec();
@@ -74,13 +74,13 @@ export class UsersService {
       .exec();
   }
 
-  banUser(id: number) {
+  banUser(id: string) {
     return this.userModel
       .findByIdAndUpdate(id, { is_active: false }, { new: true })
       .exec();
   }
 
-  activeUser(id: number) {
+  activeUser(id: string) {
     return this.userModel
     .findByIdAndUpdate(id, { is_active: true }, { new: true })
     .exec();
