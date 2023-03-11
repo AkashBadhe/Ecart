@@ -3,7 +3,7 @@
 
 E commerce web site which supports multiple stores
 
-  
+##For using Rest APIs  
 
 1. Go to `/api/rest` directory and run below command. Crete .env file and copy the content from .env.example to .env file
 
@@ -55,7 +55,7 @@ cd /admin/rest
 
 yarn
 
-yarn dev
+yarn dev:rest
 
 ```
 
