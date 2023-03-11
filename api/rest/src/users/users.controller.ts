@@ -11,8 +11,6 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { CreateProfileDto } from './dto/create-profile.dto';
-import { UpdateProfileDto } from './dto/update-profile.dto';
 import { GetUsersDto } from './dto/get-users.dto';
 
 @Controller('users')
@@ -31,7 +29,7 @@ export class UsersController {
 
   @Get(':id')
   getUser(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+    return this.usersService.findOne(id);
   }
 
   @Put(':id')
@@ -41,7 +39,7 @@ export class UsersController {
 
   @Delete(':id')
   removeUser(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+    return this.usersService.remove(id);
   }
 
   @Post('unblock-user')
@@ -51,31 +49,11 @@ export class UsersController {
 
   @Post('block-user')
   banUser(@Body('id') id: number) {
-    return this.usersService.banUser(+id);
+    return this.usersService.banUser(id);
   }
 
   @Post('make-admin')
   makeAdmin(@Param('user_id') id: string) {
     return this.usersService.makeAdmin(id);
-  }
-}
-
-@Controller('profiles')
-export class ProfilesController {
-  constructor(private readonly usersService: UsersService) {}
-
-  @Post()
-  createProfile(@Body() createProfileDto: CreateProfileDto) {
-    console.log(createProfileDto);
-  }
-
-  @Put(':id')
-  updateProfile(@Body() updateProfileDto: UpdateProfileDto) {
-    console.log(updateProfileDto);
-  }
-
-  @Delete(':id')
-  deleteProfile(@Param('id') id: number) {
-    return this.usersService.remove(id);
   }
 }

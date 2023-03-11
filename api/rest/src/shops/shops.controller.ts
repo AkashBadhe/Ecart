@@ -41,7 +41,7 @@ export class ShopsController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.shopsService.remove(+id);
+    return this.shopsService.remove(id);
   }
 
   @Post('approve')
@@ -81,7 +81,7 @@ export class StaffsController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.shopsService.remove(+id);
+    return this.shopsService.remove(id);
   }
 }
 

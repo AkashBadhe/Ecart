@@ -13,15 +13,13 @@ export class UploadsController {
 
   @Post()
   @UseInterceptors(FilesInterceptor('attachment[]'))
-  uploadFile(@UploadedFiles() attachment: Array<Express.Multer.File>) {
-    console.log(attachment);
+  async uploadFile(@UploadedFiles() attachment: Array<Express.Multer.File>) {
+    const file = await this.uploadsService.uploadImage(attachment);
     return [
       {
-        id: '883',
-        original:
-          'https://pickbazarlaravel.s3.ap-southeast-1.amazonaws.com/881/aatik-tasneem-7omHUGhhmZ0-unsplash%402x.png',
-        thumbnail:
-          'https://pickbazarlaravel.s3.ap-southeast-1.amazonaws.com/881/conversions/aatik-tasneem-7omHUGhhmZ0-unsplash%402x-thumbnail.jpg',
+        id: file.publicId,
+        original: file.filePath,
+        thumbnail: file.filePath,
       },
     ];
   }

@@ -1,103 +1,88 @@
 import { Injectable } from '@nestjs/common';
-import { plainToClass } from 'class-transformer';
 import { CreateUserDto } from './dto/create-user.dto';
-import { GetUsersDto, UserPaginator } from './dto/get-users.dto';
+import {
+  GetUsersDto,
+  UserPaginator,
+  QueryUsersOrderByColumn,
+} from './dto/get-users.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import Fuse from 'fuse.js';
-
-import { User } from './entities/user.entity';
-import usersJson from '@db/users.json';
 import { paginate } from 'src/common/pagination/paginate';
-
-const users = plainToClass(User, usersJson);
-
-const options = {
-  keys: ['name', 'type.slug', 'categories.slug', 'status'],
-  threshold: 0.3,
-};
-const fuse = new Fuse(users, options);
+import { User, UserDocument } from './schemas/user.schema';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { SortOrder } from 'src/common/dto/generic-conditions.dto';
+import { getSearchQuery } from 'src/common/utils';
 
 @Injectable()
 export class UsersService {
-  private users: User[] = users;
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   create(createUserDto: CreateUserDto) {
-    return this.users[0];
+    return this.userModel.create(createUserDto);
   }
 
   async getUsers({
-    text,
-    limit,
-    page,
-    search,
+    page = 1,
+    limit = 10,
+    search = '',
+    sortedBy = SortOrder.DESC,
+    orderBy = QueryUsersOrderByColumn.NAME,
+    searchJoin = '$or',
   }: GetUsersDto): Promise<UserPaginator> {
-    if (!page) page = 1;
-    if (!limit) limit = 30;
-    const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
-    let data: User[] = this.users;
-    if (text?.replace(/%/g, '')) {
-      data = fuse.search(text)?.map(({ item }) => item);
-    }
+    const skip = (page - 1) * limit;
+    const query = getSearchQuery(search, searchJoin);
+    console.log(JSON.stringify(query));
 
-    if (search) {
-      const parseSearchParams = search.split(';');
-      const searchText: any = [];
-      for (const searchParam of parseSearchParams) {
-        const [key, value] = searchParam.split(':');
-        // TODO: Temp Solution
-        if (key !== 'slug') {
-          searchText.push({
-            [key]: value,
-          });
-        }
-      }
+    const sort: any = {
+      [orderBy]: sortedBy.toLowerCase() === 'desc' ? -1 : 1,
+    };
 
-      data = fuse
-        .search({
-          $and: searchText,
-        })
-        ?.map(({ item }) => item);
-    }
+    const [users, totalCount] = await Promise.all([
+      this.userModel.find(query).sort(sort).skip(skip).limit(limit).exec(),
+      this.userModel.countDocuments(query).exec(),
+    ]);
 
-    const results = data.slice(startIndex, endIndex);
     const url = `/users?limit=${limit}`;
 
     return {
-      data: results,
-      ...paginate(data.length, page, limit, results.length, url),
+      data: users,
+      ...paginate(totalCount, page, limit, users.length, url),
     };
   }
 
-  findOne(id: number) {
-    return this.users.find((user) => user.id === id);
+  async findOne(id: string) {
+    return this.userModel.findById(id).exec();
+  }
+  
+  async getByShopId(id: string) {
+    return this.userModel.find({shop_id: id}).exec();
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return this.users[0];
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    return this.userModel
+      .findByIdAndUpdate(id, updateUserDto, { new: true })
+      .exec();
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  remove(id: string) {
+    return this.userModel.findByIdAndDelete(id).exec();
   }
 
-  makeAdmin(user_id: string) {
-    return this.users.find((u) => u.id === Number(user_id));
+  async makeAdmin(user_id: string) {
+    return this.userModel
+      .findByIdAndUpdate(user_id, { is_admin: true }, { new: true })
+      .exec();
   }
 
   banUser(id: number) {
-    const user = this.users.find((u) => u.id === Number(id));
-
-    user.is_active = !user.is_active;
-
-    return user;
+    return this.userModel
+      .findByIdAndUpdate(id, { is_active: false }, { new: true })
+      .exec();
   }
 
   activeUser(id: number) {
-    const user = this.users.find((u) => u.id === Number(id));
-
-    user.is_active = !user.is_active;
-
-    return user;
+    return this.userModel
+    .findByIdAndUpdate(id, { is_active: true }, { new: true })
+    .exec();
   }
 }

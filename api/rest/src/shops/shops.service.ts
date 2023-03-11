@@ -1,98 +1,98 @@
 import { Injectable } from '@nestjs/common';
-import { plainToClass } from 'class-transformer';
+import { Model } from 'mongoose';
 import { CreateShopDto } from './dto/create-shop.dto';
 import { UpdateShopDto } from './dto/update-shop.dto';
 import { Shop } from './entities/shop.entity';
-import shopsJson from '@db/shops.json';
-import Fuse from 'fuse.js';
-import { GetShopsDto } from './dto/get-shops.dto';
+import { GetShopsDto, QueryShopOrderByColumn } from './dto/get-shops.dto';
 import { paginate } from 'src/common/pagination/paginate';
 import { GetStaffsDto } from './dto/get-staffs.dto';
-
-const shops = plainToClass(Shop, shopsJson);
-const options = {
-  keys: ['name', 'type.slug', 'is_active'],
-  threshold: 0.3,
-};
-const fuse = new Fuse(shops, options);
+import { ShopDocument } from './schemas/shop.schema';
+import { InjectModel } from '@nestjs/mongoose';
+import { SortOrder } from 'src/common/dto/generic-conditions.dto';
+import { getSearchQuery } from 'src/common/utils';
+import { UserDocument, User } from 'src/users/schemas/user.schema';
 
 @Injectable()
 export class ShopsService {
-  private shops: Shop[] = shops;
+  constructor(
+    @InjectModel(Shop.name) private shopModel: Model<ShopDocument>,
+    @InjectModel(User.name) private userModal: Model<UserDocument>,
+  ) {}
 
   create(createShopDto: CreateShopDto) {
-    return this.shops[0];
+    return this.shopModel.create(createShopDto);
   }
 
-  getShops({ search, limit, page }: GetShopsDto) {
-    if (!page) page = 1;
+  async getShops({
+    page = 1,
+    limit = 10,
+    search = '',
+    sortedBy = SortOrder.DESC,
+    orderBy = QueryShopOrderByColumn.UPDATED_AT,
+    searchJoin = '$or',
+  }: GetShopsDto) {
+    const skip = (page - 1) * limit;
+    const query = getSearchQuery(search, searchJoin);
+    console.log(JSON.stringify(query));
 
-    const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
-    let data: Shop[] = this.shops;
-    if (search) {
-      const parseSearchParams = search.split(';');
-      for (const searchParam of parseSearchParams) {
-        const [key, value] = searchParam.split(':');
-        // data = data.filter((item) => item[key] === value);
-        data = fuse.search(value)?.map(({ item }) => item);
-      }
-    }
-    // if (text?.replace(/%/g, '')) {
-    //   data = fuse.search(text)?.map(({ item }) => item);
-    // }
-    const results = data.slice(startIndex, endIndex);
+    const sort: any = {
+      [orderBy]: sortedBy.toLowerCase() === 'desc' ? -1 : 1,
+    };
+
+    const [shops, totalCount] = await Promise.all([
+      this.shopModel.find(query).sort(sort).skip(skip).limit(limit).exec(),
+      this.shopModel.countDocuments(query).exec(),
+    ]);
     const url = `/shops?search=${search}&limit=${limit}`;
 
     return {
-      data: results,
-      ...paginate(data.length, page, limit, results.length, url),
+      data: shops,
+      ...paginate(totalCount, page, limit, shops.length, url),
     };
   }
 
-  getStaffs({ shop_id, limit, page }: GetStaffsDto) {
-    const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
-    let staffs: Shop['staffs'] = [];
-    if (shop_id) {
-      staffs = this.shops.find((p) => p.id === Number(shop_id))?.staffs ?? [];
-    }
-    const results = staffs?.slice(startIndex, endIndex);
+  async getStaffs({ shop_id, limit = 10, page = 1 }: GetStaffsDto) {
+    const query = {shop_id: shop_id};
+    const [staffMembers, totalCount] = await Promise.all([
+      this.userModal.find(query).limit(limit).exec(),
+      this.userModal.countDocuments(query).exec(),
+    ]);
+    
     const url = `/staffs?limit=${limit}`;
 
     return {
-      data: results,
-      ...paginate(staffs?.length, page, limit, results?.length, url),
+      data: staffMembers,
+      ...paginate(totalCount, page, limit, staffMembers?.length, url),
     };
   }
 
-  getShop(slug: string): Shop {
-    return this.shops.find((p) => p.slug === slug);
+  async getShop(slug: string) {
+    return await this.shopModel.findOne({slug: slug}).exec();
   }
 
   update(id: number, updateShopDto: UpdateShopDto) {
-    return this.shops[0];
+    return this.shopModel
+      .findByIdAndUpdate(id, updateShopDto, { new: true })
+      .exec();
   }
 
   approve(id: number) {
     return `This action removes a #${id} shop`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} shop`;
+  remove(id: string) {
+    return this.shopModel.findByIdAndDelete(id).exec();
   }
 
   disapproveShop(id: number) {
-    const shop = this.shops.find((s) => s.id === Number(id));
-    shop.is_active = false;
-
-    return shop;
+    return this.shopModel
+      .findByIdAndUpdate(id, {is_active: false}, { new: true })
+      .exec();
   }
 
   approveShop(id: number) {
-    const shop = this.shops.find((s) => s.id === Number(id));
-    shop.is_active = true;
-
-    return shop;
+    return this.shopModel
+    .findByIdAndUpdate(id, {is_active: true}, { new: true })
+    .exec();
   }
 }
