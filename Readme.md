@@ -55,7 +55,7 @@ cd admin/rest
 
 yarn
 
-yarn dev:rest
+yarn dev
 
 ```
 
