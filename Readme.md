@@ -29,7 +29,7 @@ Swagger documentation url: http://localhost:5050/docs#
 
 ```bash
 
-cd /shop
+cd shop
 
 # on /shop directory
 
@@ -49,7 +49,7 @@ Shop url: http://localhost:3005/
 
 ```bash
 
-cd /admin/rest
+cd admin/rest
 
 # on /admin/rest directory
 
