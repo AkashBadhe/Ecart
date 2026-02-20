@@ -1,33 +1,42 @@
 import { Injectable } from '@nestjs/common';
-import { plainToClass } from 'class-transformer';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { CreateSettingDto } from './dto/create-setting.dto';
 import { UpdateSettingDto } from './dto/update-setting.dto';
 import { Setting } from './entities/setting.entity';
-import settingsJson from '@db/settings.json';
-
-const settings = plainToClass(Setting, settingsJson);
+import {
+  Setting as SettingSchemaEntity,
+  SettingDocument,
+} from './schemas/setting.schema';
 
 @Injectable()
 export class SettingsService {
-  private settings: Setting = settings;
+  constructor(
+    @InjectModel(SettingSchemaEntity.name)
+    private readonly settingModel: Model<SettingDocument>,
+  ) {}
 
-  create(createSettingDto: CreateSettingDto) {
-    return this.settings;
+  async create(createSettingDto: CreateSettingDto) {
+    const lastSetting = await this.settingModel.findOne().sort({ id: -1 }).exec();
+    const nextId = (lastSetting?.id ?? 0) + 1;
+    return this.settingModel.create({ ...createSettingDto, id: nextId });
   }
 
-  findAll() {
-    return this.settings;
+  async findAll() {
+    return this.settingModel.findOne().sort({ created_at: -1 }).exec();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} setting`;
+  async findOne(id: number) {
+    return this.settingModel.findOne({ id }).exec();
   }
 
-  update(id: number, updateSettingDto: UpdateSettingDto) {
-    return this.settings;
+  async update(id: number, updateSettingDto: UpdateSettingDto) {
+    return this.settingModel
+      .findOneAndUpdate({ id }, updateSettingDto, { new: true })
+      .exec();
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} setting`;
+  async remove(id: number) {
+    return this.settingModel.findOneAndDelete({ id }).exec();
   }
 }

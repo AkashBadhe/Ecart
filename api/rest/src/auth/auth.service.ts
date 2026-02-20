@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import {
   AuthResponse,
   ChangePasswordDto,
@@ -15,31 +20,44 @@ import {
   OtpDto,
 } from './dto/create-auth.dto';
 import { v4 as uuidv4 } from 'uuid';
-import { plainToClass } from 'class-transformer';
+import { Model } from 'mongoose';
 import { User } from 'src/users/entities/user.entity';
-import usersJson from '@db/users.json';
-const users = plainToClass(User, usersJson);
+import { User as UserSchemaEntity, UserDocument } from 'src/users/schemas/user.schema';
 
 @Injectable()
 export class AuthService {
-  private users: User[] = users;
-  async register(createUserInput: RegisterDto): Promise<AuthResponse> {
-    const user: User = {
-      id: uuidv4(),
-      ...users[0],
-      ...createUserInput,
-      created_at: new Date(),
-      updated_at: new Date(),
-    };
+  constructor(
+    @InjectModel(UserSchemaEntity.name)
+    private readonly userModel: Model<UserDocument>,
+  ) {}
 
-    this.users.push(user);
+  async register(createUserInput: RegisterDto): Promise<AuthResponse> {
+    const exists = await this.userModel.findOne({ email: createUserInput.email }).exec();
+    if (exists) {
+      throw new BadRequestException('Email is already in use');
+    }
+
+    await this.userModel.create({
+      ...createUserInput,
+      id: uuidv4(),
+      is_active: true,
+      is_admin: false,
+    });
+
     return {
       token: 'jwt token',
       permissions: ['super_admin', 'customer'],
     };
   }
+
   async login(loginInput: LoginDto): Promise<AuthResponse> {
-    console.log(loginInput);
+    const user = await this.userModel
+      .findOne({ email: loginInput.email, password: loginInput.password })
+      .exec();
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
     return {
       token: 'jwt token',
       permissions: ['super_admin', 'customer'],
@@ -134,8 +152,8 @@ export class AuthService {
   // public getUser(getUserArgs: GetUserArgs): User {
   //   return this.users.find((user) => user.id === getUserArgs.id);
   // }
-  me(): User {
-    return this.users[0];
+  async me(): Promise<User> {
+    return this.userModel.findOne().sort({ created_at: -1 }).exec();
   }
 
   // updateUser(id: number, updateUserInput: UpdateUserInput) {

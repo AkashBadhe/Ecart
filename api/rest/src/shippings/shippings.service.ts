@@ -1,34 +1,43 @@
 import { Injectable } from '@nestjs/common';
-import { plainToClass } from 'class-transformer';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { CreateShippingDto } from './dto/create-shipping.dto';
 import { GetShippingsDto } from './dto/get-shippings.dto';
 import { UpdateShippingDto } from './dto/update-shipping.dto';
 import { Shipping } from './entities/shipping.entity';
-import shippingsJson from '@db/shippings.json';
-
-const shippings = plainToClass(Shipping, shippingsJson);
+import {
+  Shipping as ShippingSchemaEntity,
+  ShippingDocument,
+} from './schemas/shipping.schema';
 
 @Injectable()
 export class ShippingsService {
-  private shippings: Shipping[] = shippings;
+  constructor(
+    @InjectModel(ShippingSchemaEntity.name)
+    private readonly shippingModel: Model<ShippingDocument>,
+  ) {}
 
-  create(createShippingDto: CreateShippingDto) {
-    return this.shippings[0];
+  async create(createShippingDto: CreateShippingDto) {
+    const lastShipping = await this.shippingModel.findOne().sort({ id: -1 }).exec();
+    const nextId = (lastShipping?.id ?? 0) + 1;
+    return this.shippingModel.create({ ...createShippingDto, id: nextId });
   }
 
-  getShippings({}: GetShippingsDto) {
-    return this.shippings;
+  async getShippings({}: GetShippingsDto) {
+    return this.shippingModel.find().exec();
   }
 
-  findOne(id: number) {
-    return this.shippings.find((shipping) => shipping.id === Number(id));
+  async findOne(id: number) {
+    return this.shippingModel.findOne({ id: Number(id) }).exec();
   }
 
-  update(id: number, updateShippingDto: UpdateShippingDto) {
-    return this.shippings[0];
+  async update(id: number, updateShippingDto: UpdateShippingDto) {
+    return this.shippingModel
+      .findOneAndUpdate({ id }, updateShippingDto, { new: true })
+      .exec();
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} shipping`;
+  async remove(id: number) {
+    return this.shippingModel.findOneAndDelete({ id }).exec();
   }
 }

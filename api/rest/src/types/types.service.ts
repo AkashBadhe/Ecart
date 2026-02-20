@@ -1,74 +1,51 @@
 import { Injectable } from '@nestjs/common';
-import { plainToClass } from 'class-transformer';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { CreateTypeDto } from './dto/create-type.dto';
 import { UpdateTypeDto } from './dto/update-type.dto';
 import { Type } from './entities/type.entity';
-
-import typesJson from '@db/types.json';
-import Fuse from 'fuse.js';
 import { GetTypesDto } from './dto/get-types.dto';
-
-const types = plainToClass(Type, typesJson);
-const options = {
-  keys: ['name'],
-  threshold: 0.3,
-};
-const fuse = new Fuse(types, options);
+import { getSearchQuery } from 'src/common/utils';
+import { Type as TypeSchemaEntity, TypeDocument } from './schemas/type.schema';
 
 @Injectable()
 export class TypesService {
-  private types: Type[] = types;
+  constructor(
+    @InjectModel(TypeSchemaEntity.name)
+    private readonly typeModel: Model<TypeDocument>,
+  ) {}
 
-  getTypes({ text, search }: GetTypesDto) {
-    let data: Type[] = this.types;
+  async getTypes({ text, search }: GetTypesDto) {
+    const query = getSearchQuery(search, 'and');
     if (text?.replace(/%/g, '')) {
-      data = fuse.search(text)?.map(({ item }) => item);
+      query['name'] = { $regex: text.replace(/%/g, ''), $options: 'i' };
     }
-
-    if (search) {
-      const parseSearchParams = search.split(';');
-      const searchText: any = [];
-      for (const searchParam of parseSearchParams) {
-        const [key, value] = searchParam.split(':');
-        // TODO: Temp Solution
-        if (key !== 'slug') {
-          searchText.push({
-            [key]: value,
-          });
-        }
-      }
-
-      data = fuse
-        .search({
-          $and: searchText,
-        })
-        ?.map(({ item }) => item);
-    }
-
-    return data;
+    return this.typeModel.find(query).exec();
   }
 
-  getTypeBySlug(slug: string): Type {
-    return this.types.find((p) => p.slug === slug);
+  async getTypeBySlug(slug: string): Promise<Type> {
+    return this.typeModel.findOne({ slug }).exec();
   }
 
-  create(createTypeDto: CreateTypeDto) {
-    return this.types[0];
+  async create(createTypeDto: CreateTypeDto) {
+    const lastType = await this.typeModel.findOne().sort({ id: -1 }).exec();
+    const nextId = (lastType?.id ?? 0) + 1;
+    return this.typeModel.create({ ...createTypeDto, id: nextId });
   }
 
-  findAll() {
-    return `This action returns all types`;
+  async findAll() {
+    return this.typeModel.find().exec();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} type`;
+  async findOne(id: number) {
+    return this.typeModel.findOne({ id }).exec();
   }
 
-  update(id: number, updateTypeDto: UpdateTypeDto) {
-    return this.types[0];
+  async update(id: number, updateTypeDto: UpdateTypeDto) {
+    return this.typeModel.findOneAndUpdate({ id }, updateTypeDto, { new: true }).exec();
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} type`;
+  async remove(id: number) {
+    return this.typeModel.findOneAndDelete({ id }).exec();
   }
 }

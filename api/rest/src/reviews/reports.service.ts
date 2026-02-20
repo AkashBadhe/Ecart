@@ -1,26 +1,38 @@
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { CreateReportDto } from './dto/create-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
+import { Report, ReportDocument } from './schemas/report.schema';
 
 @Injectable()
 export class AbusiveReportService {
-  findAllReports() {
-    return 'this route returns all abusive report';
+  constructor(
+    @InjectModel(Report.name)
+    private readonly reportModel: Model<ReportDocument>,
+  ) {}
+
+  async findAllReports() {
+    return this.reportModel.find().exec();
   }
 
-  findReport(id: number) {
-    return `This action returns a #${id} report`;
+  async findReport(id: number) {
+    return this.reportModel.findOne({ id }).exec();
   }
 
-  create(createReportDto: CreateReportDto) {
-    return 'This action adds a new report';
+  async create(createReportDto: CreateReportDto) {
+    const lastReport = await this.reportModel.findOne().sort({ id: -1 }).exec();
+    const nextId = (lastReport?.id ?? 0) + 1;
+    return this.reportModel.create({ ...createReportDto, id: nextId });
   }
 
-  update(id: number, updateReportDto: UpdateReportDto) {
-    return `This action updates a #${id} report`;
+  async update(id: number, updateReportDto: UpdateReportDto) {
+    return this.reportModel
+      .findOneAndUpdate({ id }, updateReportDto, { new: true })
+      .exec();
   }
 
-  delete(id: number) {
-    return `This action removes a #${id} report`;
+  async delete(id: number) {
+    return this.reportModel.findOneAndDelete({ id }).exec();
   }
 }

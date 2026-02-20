@@ -1,16 +1,19 @@
 import { Injectable } from '@nestjs/common';
-import { plainToClass } from 'class-transformer';
-import reportJSON from '@db/reports.json';
-import { MyReports } from './entities/report.entity';
-const myReports = plainToClass(MyReports, reportJSON);
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Report, ReportDocument } from 'src/reviews/schemas/report.schema';
 
 @Injectable()
 export class ReportsService {
-  private myReports: MyReports[] = myReports;
+  constructor(
+    @InjectModel(Report.name)
+    private readonly reportModel: Model<ReportDocument>,
+  ) {}
 
-  findMyReports() {
+  async findMyReports() {
+    const data = await this.reportModel.find().exec();
     return {
-      data: myReports,
+      data,
     };
   }
 }

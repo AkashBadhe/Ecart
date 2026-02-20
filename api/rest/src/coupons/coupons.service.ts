@@ -1,9 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { plainToClass } from 'class-transformer';
 import { CreateCouponDto } from './dto/create-coupon.dto';
 import { UpdateCouponDto } from './dto/update-coupon.dto';
-import couponsJson from '@db/coupons.json';
-import Fuse from 'fuse.js';
 import {
   GetCouponsDto,
   QueryCouponsOrderByColumn,
@@ -14,13 +11,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Coupon, CouponDocument } from './schemas/coupon.schema';
 import { getSearchQuery } from 'src/common/utils';
-
-const coupons = plainToClass(Coupon, couponsJson);
-const options = {
-  keys: ['code'],
-  threshold: 0.3,
-};
-const fuse = new Fuse(coupons, options);
 
 @Injectable()
 export class CouponsService {

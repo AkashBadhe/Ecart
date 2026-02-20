@@ -1,64 +1,63 @@
 import { Injectable } from '@nestjs/common';
-import { plainToClass } from 'class-transformer';
-import Fuse from 'fuse.js';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { paginate } from 'src/common/pagination/paginate';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { GetReviewsDto, ReviewPaginator } from './dto/get-reviews.dto';
-import reviewJSON from '@db/reviews.json';
 import { Review } from './entities/review.entity';
-
-const reviews = plainToClass(Review, reviewJSON);
-const options = {
-  keys: ['product_id'],
-  threshold: 0.3,
-};
-const fuse = new Fuse(reviews, options);
+import {
+  Review as ReviewSchemaEntity,
+  ReviewDocument,
+} from './schemas/review.schema';
+import { getSearchQuery } from 'src/common/utils';
 
 @Injectable()
 export class ReviewService {
-  private reviews: Review[] = reviews;
+  constructor(
+    @InjectModel(ReviewSchemaEntity.name)
+    private readonly reviewModel: Model<ReviewDocument>,
+  ) {}
 
-  findAllReviews({ limit, page, search, product_id }: GetReviewsDto) {
+  async findAllReviews({ limit = 30, page = 1, search, product_id }: GetReviewsDto) {
     if (!page) page = 1;
     if (!limit) limit = 30;
-    const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
-    let data: Review[] = this.reviews;
-
-    if (search) {
-      const parseSearchParams = search.split(';');
-      for (const searchParam of parseSearchParams) {
-        const [key, value] = searchParam.split(':');
-        data = fuse.search(value)?.map(({ item }) => item);
-      }
-    }
+    const skip = (page - 1) * limit;
+    const query = getSearchQuery(search);
 
     if (product_id) {
-      data = data.filter((p) => p.product_id === Number(product_id));
+      query['product_id'] = Number(product_id);
     }
 
-    const results = data.slice(startIndex, endIndex);
+    const [results, totalCount] = await Promise.all([
+      this.reviewModel.find(query).skip(skip).limit(limit).exec(),
+      this.reviewModel.countDocuments(query).exec(),
+    ]);
+
     const url = `/reviews?search=${search}&limit=${limit}`;
     return {
       data: results,
-      ...paginate(data.length, page, limit, results.length, url),
+      ...paginate(totalCount, page, limit, results.length, url),
     };
   }
 
-  findReview(id: number) {
-    return this.reviews.find((p) => p.id === id);
+  async findReview(id: number) {
+    return this.reviewModel.findOne({ id }).exec();
   }
 
-  create(createReviewDto: CreateReviewDto) {
-    return this.reviews[0];
+  async create(createReviewDto: CreateReviewDto) {
+    const lastReview = await this.reviewModel.findOne().sort({ id: -1 }).exec();
+    const nextId = (lastReview?.id ?? 0) + 1;
+    return this.reviewModel.create({ ...createReviewDto, id: nextId });
   }
 
-  update(id: number, updateReviewDto: UpdateReviewDto) {
-    return this.reviews[0];
+  async update(id: number, updateReviewDto: UpdateReviewDto) {
+    return this.reviewModel
+      .findOneAndUpdate({ id }, updateReviewDto, { new: true })
+      .exec();
   }
 
-  delete(id: number) {
-    return this.reviews[0];
+  async delete(id: number) {
+    return this.reviewModel.findOneAndDelete({ id }).exec();
   }
 }

@@ -3,25 +3,17 @@ import {
   OrderStatus,
   OrderStatusDocument,
 } from './schemas/order-status.schema';
+import { OrderFile, OrderFileDocument } from './schemas/order-file.schema';
+import { OrderInvoice, OrderInvoiceDocument } from './schemas/order-invoice.schema';
+import { OrderExport, OrderExportDocument } from './schemas/order-export.schema';
 import { Order as OrderEntitry } from './entities/order.entity';
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
-import exportOrderJson from '@db/order-export.json';
-import orderFilesJson from '@db/order-files.json';
-import orderInvoiceJson from '@db/order-invoice.json';
-import orderStatusJson from '@db/order-statuses.json';
-import paymentGatewayJson from '@db/payment-gateway.json';
-import paymentIntentJson from '@db/payment-intent.json';
-import setting from '@db/settings.json';
-import { plainToClass } from 'class-transformer';
-import Fuse from 'fuse.js';
 import { AuthService } from 'src/auth/auth.service';
 import { paginate } from 'src/common/pagination/paginate';
-import { PaymentIntent } from 'src/payment-intent/entries/payment-intent.entity';
-import { PaymentGateWay } from 'src/payment-method/entities/payment-gateway.entity';
-import { PaypalPaymentService } from 'src/payment/paypal-payment.service';
+import { PayalPaymentService } from 'src/payment/paypal-payment.service';
 import { StripePaymentService } from 'src/payment/stripe-payment.service';
-import { Setting } from 'src/settings/entities/setting.entity';
+import { SettingsService } from 'src/settings/settings.service';
 import {
   CreateOrderStatusDto,
   UpdateOrderStatusDto,
@@ -43,7 +35,6 @@ import {
   VerifiedCheckoutData,
 } from './dto/verify-checkout.dto';
 import {
-  OrderFiles,
   OrderStatusType,
   PaymentGatewayType,
   PaymentStatusType,
@@ -51,27 +42,23 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { getSearchQuery } from 'src/common/utils';
 import { SortOrder } from 'src/common/dto/generic-conditions.dto';
-const paymentIntents = plainToClass(PaymentIntent, paymentIntentJson);
-const paymentGateways = plainToClass(PaymentGateWay, paymentGatewayJson);
-const orderStatus = plainToClass(OrderStatus, orderStatusJson);
-const options = {
-  keys: ['name'],
-  threshold: 0.3,
-};
-const fuse = new Fuse(orderStatus, options);
-const orderFiles = plainToClass(OrderFiles, orderFilesJson);
-const settings = plainToClass(Setting, setting);
+
 @Injectable()
 export class OrdersService {
-  private orderFiles: OrderFiles[] = orderFiles;
-  private setting: Setting = settings;
   constructor(
     @InjectModel(Order.name) private readonly orderModel: Model<OrderDocument>,
     @InjectModel(OrderStatus.name)
     private orderStatusModel: Model<OrderStatusDocument>,
+    @InjectModel(OrderFile.name)
+    private orderFileModel: Model<OrderFileDocument>,
+    @InjectModel(OrderInvoice.name)
+    private orderInvoiceModel: Model<OrderInvoiceDocument>,
+    @InjectModel(OrderExport.name)
+    private orderExportModel: Model<OrderExportDocument>,
     private readonly authService: AuthService,
     private readonly stripeService: StripePaymentService,
-    private readonly paypalService: PaypalPaymentService,
+    private readonly paypalService: PayalPaymentService,
+    private readonly settingsService: SettingsService,
   ) {}
   async create(createOrderInput: CreateOrderDto): Promise<Order> {
     const createOrder = await this.orderModel.create(createOrderInput);
@@ -238,35 +225,34 @@ export class OrdersService {
       .exec();
   }
 
-  async getOrderFileItems({ page, limit }: GetOrderFilesDto) {
-    if (!page) page = 1;
-    if (!limit) limit = 30;
-    const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
-
-    const results = orderFiles.slice(startIndex, endIndex);
-
+  async getOrderFileItems({ page = 1, limit = 30 }: GetOrderFilesDto) {
+    const skip = (page - 1) * limit;
+    const results = await this.orderFileModel
+      .find()
+      .skip(skip)
+      .limit(limit)
+      .exec();
+    const totalCount = await this.orderFileModel.countDocuments().exec();
     const url = `/downloads?&limit=${limit}`;
     return {
       data: results,
-      ...paginate(orderFiles.length, page, limit, results.length, url),
+      ...paginate(totalCount, page, limit, results.length, url),
     };
   }
 
   async getDigitalFileDownloadUrl(digitalFileId: number) {
-    const item: OrderFiles = this.orderFiles.find(
-      (singleItem) => singleItem.digital_file_id === digitalFileId,
-    );
-
-    return item.file.url;
+    const item = await this.orderFileModel.findOne({ digital_file_id: digitalFileId }).exec();
+    return item?.file?.url || null;
   }
 
   async exportOrder(shop_id: string) {
-    return exportOrderJson.url;
+    const export_record = await this.orderExportModel.findOne().exec();
+    return export_record?.url || null;
   }
 
   async downloadInvoiceUrl(shop_id: string) {
-    return orderInvoiceJson[0].url;
+    const invoice = await this.orderInvoiceModel.findOne().exec();
+    return invoice?.url || null;
   }
 
   /**
@@ -285,32 +271,19 @@ export class OrdersService {
       return child;
     });
   }
-  /**
-   * This action will return Payment Intent
-   * @param order
-   * @param setting
-   */
   async processPaymentIntent(
     order: Order,
-    setting: Setting,
-  ): Promise<PaymentIntent> {
-    const paymentIntent = paymentIntents.find(
-      (intent: PaymentIntent) =>
-        intent.tracking_number === order.tracking_number &&
-        intent.payment_gateway.toString().toLowerCase() ===
-          setting.options.paymentGateway.toString().toLowerCase(),
-    );
-    if (paymentIntent) {
-      return paymentIntent;
-    }
+  ): Promise<any> {
+    const settings = await this.settingsService.findAll();
+    const result = await this.savePaymentIntent(order, settings?.options?.paymentGateway || 'stripe');
     const {
       id: payment_id,
       client_secret = null,
       redirect_url = null,
       customer = null,
-    } = await this.savePaymentIntent(order, setting.options.paymentGateway);
+    } = result;
     const is_redirect = redirect_url ? true : false;
-    const paymentIntentInfo: PaymentIntent = {
+    const paymentIntentInfo: any = {
       id: Number(Date.now()),
       order_id: order.id,
       tracking_number: order.tracking_number,
@@ -322,23 +295,6 @@ export class OrdersService {
         is_redirect,
       },
     };
-
-    /**
-     * Commented below code will work for real database.
-     * if you uncomment this for json will arise conflict.
-     */
-
-    // paymentIntents.push(paymentIntentInfo);
-    // const paymentGateway: PaymentGateWay = {
-    //   id: Number(Date.now()),
-    //   user_id: this.authService.me().id,
-    //   customer_id: customer,
-    //   gateway_name: setting.options.paymentGateway,
-    //   created_at: new Date(),
-    //   updated_at: new Date(),
-    // };
-    // paymentGateways.push(paymentGateway);
-
     return paymentIntentInfo;
   }
 
@@ -349,19 +305,15 @@ export class OrdersService {
    * @param paymentGateway
    */
   async savePaymentIntent(order: Order, paymentGateway?: string): Promise<any> {
-    const me = this.authService.me();
+    const me = await this.authService.me();
     switch (order.payment_gateway) {
       case PaymentGatewayType.STRIPE:
         const paymentIntentParam =
           await this.stripeService.makePaymentIntentParam(order, me);
         return await this.stripeService.createPaymentIntent(paymentIntentParam);
       case PaymentGatewayType.PAYPAL:
-        // here goes PayPal
         return this.paypalService.createPaymentIntent(order);
-        break;
-
       default:
-        //
         break;
     }
   }

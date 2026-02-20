@@ -1,23 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { plainToClass } from 'class-transformer';
-import Fuse from 'fuse.js';
 import { paginate } from 'src/common/pagination/paginate';
 import { GetQuestionDto } from './dto/get-questions.dto';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
-import questionsJSON from '@db/questions.json';
 
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Question, QuestionDocument } from './schemas/questions.schema';
 import { getSearchQuery } from 'src/common/utils';
-
-const questions = plainToClass(Question, questionsJSON);
-const options = {
-  keys: [],
-  threshold: 0.3,
-};
-const fuse = new Fuse(questions, options);
 
 @Injectable()
 export class QuestionService {
