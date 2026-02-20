@@ -1,0 +1,81 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "dev:api-rest",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["dev:api-rest"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "dev:admin-rest",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["dev:admin-rest"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "dev:shop-rest",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["dev:shop-rest"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "dev:api-gql",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["dev:api-gql"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "dev:admin-gql",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["dev:admin-gql"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "dev:shop-gql",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["dev:shop-gql"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "stack:rest (separate terminals)",
+      "dependsOrder": "parallel",
+      "dependsOn": ["dev:api-rest", "dev:admin-rest", "dev:shop-rest"]
+    },
+    {
+      "label": "stack:gql (separate terminals)",
+      "dependsOrder": "parallel",
+      "dependsOn": ["dev:api-gql", "dev:admin-gql", "dev:shop-gql"]
+    }
+  ]
+}

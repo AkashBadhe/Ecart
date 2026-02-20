@@ -5,6 +5,7 @@
   "packageManager": "pnpm@10.5.2",
   "scripts": {
     "dev": "next dev -p 3002",
+    "dev:rest": "pnpm run dev",
     "build": "next build",
     "start": "next start -p 3002",
     "lint": "next lint"

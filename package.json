@@ -23,7 +23,15 @@
     "start:shop-gql": "pnpm --filter @pick-bazar/shop start",
     "dev:admin-gql": "pnpm --filter @marvel/admin-graphql dev",
     "build:admin-gql": "pnpm --filter @marvel/admin-graphql build",
-    "start:admin-gql": "pnpm --filter @marvel/admin-graphql start"
+    "start:admin-gql": "pnpm --filter @marvel/admin-graphql start",
+    "dev:api-rest": "pnpm --filter @marvel-mock/api-rest start:dev",
+    "build:api-rest": "pnpm --filter @marvel-mock/api-rest build",
+    "start:api-rest": "pnpm --filter @marvel-mock/api-rest start:prod",
+    "dev:api-gql": "pnpm --filter redq-marvel-mock-api start:dev",
+    "build:api-gql": "pnpm --filter redq-marvel-mock-api build",
+    "start:api-gql": "pnpm --filter redq-marvel-mock-api start:prod",
+    "dev:rest": "pnpm -r --parallel --stream --filter @marvel-mock/api-rest --filter @marvel/admin-rest --filter @pick-bazar/shop run dev:rest",
+    "dev:gql": "pnpm -r --parallel --stream --filter redq-marvel-mock-api --filter @marvel/admin-graphql --filter @pick-bazar/shop run dev:gql"
   },
   "devDependencies": {
     "prettier": "2.4.0",

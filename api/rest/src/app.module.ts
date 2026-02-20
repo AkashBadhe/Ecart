@@ -38,8 +38,10 @@ import { CatsModule } from './cats/cats.module';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb+srv://akashbadhe:XfZUVV767yl18frX@chatappcluster.htgwqj7.mongodb.net/ECart?retryWrites=true&w=majority'),
     ConfigModule.forRoot(),
+    MongooseModule.forRoot(
+      process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/ECart',
+    ),
     StripeModule.forRoot({
       apiKey: process.env.STRIPE_API_KEY,
       apiVersion: '2022-11-15',
