@@ -16,6 +16,36 @@ export class Tag {
 
   @Prop({ index: true })
   name: string;
+
+  @Prop({ type: Number })
+  parent?: number;
+
+  @Prop({ type: String })
+  details?: string;
+
+  @Prop({ type: Object, default: {} })
+  image?: any;
+
+  @Prop({ type: String })
+  icon?: string;
+
+  @Prop({ type: Object, default: {} })
+  type?: any;
+
+  @Prop({ type: Array, default: [] })
+  products?: any[];
+
+  @Prop({ type: String })
+  language?: string;
+
+  @Prop({ type: Array, default: [] })
+  translated_languages?: string[];
+
+  @Prop({ type: Date, default: Date.now })
+  created_at?: Date;
+
+  @Prop({ type: Date, default: Date.now })
+  updated_at?: Date;
 }
 
 export const TagSchema = SchemaFactory.createForClass(Tag);

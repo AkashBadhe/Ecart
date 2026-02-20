@@ -80,7 +80,7 @@ export class VariationOption {
 }
 
 export class File extends CoreEntity {
-  attachment_id: number;
+  attachment_id?: number;
   url: string;
-  fileable_id: number;
+  fileable_id?: number;
 }

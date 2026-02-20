@@ -34,7 +34,7 @@ export class PaymentMethodService {
         await this.paymentMethodModel.updateMany({}, { default_card: false }).exec();
       }
       const settings = await this.settingService.findAll();
-      const paymentGateway: string = settings?.options?.paymentGateway || 'stripe';
+      const paymentGateway: string = (settings?.options?.paymentGateway as string) || 'stripe';
       return await this.saveCard(createPaymentMethodDto, paymentGateway);
     } catch (error) {
       console.log(error);
@@ -70,7 +70,7 @@ export class PaymentMethodService {
 
   async savePaymentMethod(createPaymentMethodDto: CreatePaymentMethodDto) {
     const settings = await this.settingService.findAll();
-    const paymentGateway: string = settings?.options?.paymentGateway || 'stripe';
+    const paymentGateway: string = (settings?.options?.paymentGateway as string) || 'stripe';
     try {
       return this.saveCard(createPaymentMethodDto, paymentGateway);
     } catch (err) {

@@ -70,10 +70,10 @@ export class Order extends CoreEntity {
 }
 
 export class OrderFiles extends CoreEntity {
-  purchase_key: string;
-  digital_file_id: number;
+  purchase_key?: string;
+  digital_file_id?: number;
   order_id?: number;
-  customer_id: number;
-  file: File;
-  fileable: Product;
+  customer_id?: number;
+  file?: File;
+  fileable?: Product;
 }

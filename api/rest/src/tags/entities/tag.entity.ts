@@ -6,12 +6,12 @@ import { Type } from 'src/types/entities/type.entity';
 export class Tag extends CoreEntity {
   name: string;
   slug: string;
-  parent: number;
-  details: string;
-  image: Attachment;
-  icon: string;
-  type: Type;
-  products: Product[];
-  language: string;
-  translated_languages: string[];
+  parent?: number;
+  details?: string;
+  image?: Attachment;
+  icon?: string;
+  type?: Type;
+  products?: Product[];
+  language?: string;
+  translated_languages?: string[];
 }

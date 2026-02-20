@@ -18,42 +18,51 @@ export class TagsService {
   ) {}
 
   async create(createTagDto: CreateTagDto): Promise<Tag> {
-    const lastTag = await this.tagModel.findOne().sort({ id: -1 }).exec();
+    const lastTag = await this.tagModel.findOne().sort({ id: -1 }).lean().exec();
     const nextId = (lastTag?.id ?? 0) + 1;
-    return this.tagModel.create({ ...createTagDto, id: nextId });
+    const result = await this.tagModel.create({ ...createTagDto, id: nextId });
+    return (result as unknown as Tag);
   }
 
   async findAll({ page = 1, limit = 15, search, sortedBy = SortOrder.DESC }: GetTagsDto) {
     if (!page) page = 1;
     const skip = (page - 1) * limit;
     const query = getSearchQuery(search, 'and');
-    const sort = { created_at: sortedBy?.toLowerCase() === 'asc' ? 1 : -1 };
+    const sortValue = sortedBy === SortOrder.ASC ? 1 : -1;
+    const sort: any = { created_at: sortValue };
 
     const [data, totalCount] = await Promise.all([
-      this.tagModel.find(query).sort(sort).skip(skip).limit(limit).exec(),
+      this.tagModel.find(query).sort(sort).skip(skip).limit(limit).lean().exec(),
       this.tagModel.countDocuments(query).exec(),
     ]);
 
     const url = `/tags?limit=${limit}`;
     return {
-      data,
+      data: data as any,
       ...paginate(totalCount, page, limit, data.length, url),
     };
   }
 
   async findOne(param: string, language: string) {
-    return this.tagModel
+    const result = await this.tagModel
       .findOne({
         $or: [{ id: Number(param) || -1 }, { slug: param }],
       })
+      .lean()
       .exec();
+    return (result as unknown as Tag);
   }
 
   async update(id: number, updateTagDto: UpdateTagDto) {
-    return this.tagModel.findOneAndUpdate({ id }, updateTagDto, { new: true }).exec();
+    const result = await this.tagModel
+      .findOneAndUpdate({ id }, updateTagDto, { new: true })
+      .lean()
+      .exec();
+    return (result as unknown as Tag);
   }
 
   async remove(id: number) {
-    return this.tagModel.findOneAndDelete({ id }).exec();
+    const result = await this.tagModel.findOneAndDelete({ id }).lean().exec();
+    return (result as unknown as Tag);
   }
 }

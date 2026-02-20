@@ -4,13 +4,13 @@ import { CoreEntity } from 'src/common/entities/core.entity';
 export class Type extends CoreEntity {
   name: string;
   slug: string;
-  image: Attachment;
-  icon: string;
+  image?: Attachment;
+  icon?: string;
   banners?: Banner[];
   promotional_sliders?: Attachment[];
   settings?: TypeSettings;
-  language: string;
-  translated_languages: string[];
+  language?: string;
+  translated_languages?: string[];
 }
 
 export class Banner {

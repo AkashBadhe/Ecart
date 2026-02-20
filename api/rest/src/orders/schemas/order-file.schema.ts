@@ -22,9 +22,22 @@ export class OrderFile {
 
   @Prop({ type: Object, default: {} })
   file: {
-    id: number;
+    id?: number;
+    attachment_id?: number;
     url: string;
+    fileable_id?: number;
+    created_at?: Date;
+    updated_at?: Date;
   };
+
+  @Prop({ type: Date })
+  created_at?: Date;
+
+  @Prop({ type: Date })
+  updated_at?: Date;
+
+  @Prop({ type: Object, default: {} })
+  fileable?: any;
 }
 
 export const OrderFileSchema = SchemaFactory.createForClass(OrderFile);

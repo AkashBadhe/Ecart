@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { paginate } from 'src/common/pagination/paginate';
-import { Question, QuestionDocument } from './schemas/question.schema';
+import { Question, QuestionDocument } from './schemas/questions.schema';
 import { GetQuestionDto } from './dto/get-questions.dto';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';

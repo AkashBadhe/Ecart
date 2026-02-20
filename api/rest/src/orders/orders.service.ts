@@ -11,7 +11,7 @@ import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { AuthService } from 'src/auth/auth.service';
 import { paginate } from 'src/common/pagination/paginate';
-import { PayalPaymentService } from 'src/payment/paypal-payment.service';
+import { PaypalPaymentService } from 'src/payment/paypal-payment.service';
 import { StripePaymentService } from 'src/payment/stripe-payment.service';
 import { SettingsService } from 'src/settings/settings.service';
 import {
@@ -57,7 +57,7 @@ export class OrdersService {
     private orderExportModel: Model<OrderExportDocument>,
     private readonly authService: AuthService,
     private readonly stripeService: StripePaymentService,
-    private readonly paypalService: PayalPaymentService,
+    private readonly paypalService: PaypalPaymentService,
     private readonly settingsService: SettingsService,
   ) {}
   async create(createOrderInput: CreateOrderDto): Promise<Order> {
@@ -231,11 +231,12 @@ export class OrdersService {
       .find()
       .skip(skip)
       .limit(limit)
+      .lean()
       .exec();
     const totalCount = await this.orderFileModel.countDocuments().exec();
     const url = `/downloads?&limit=${limit}`;
     return {
-      data: results,
+      data: results as any,
       ...paginate(totalCount, page, limit, results.length, url),
     };
   }
@@ -275,7 +276,8 @@ export class OrdersService {
     order: Order,
   ): Promise<any> {
     const settings = await this.settingsService.findAll();
-    const result = await this.savePaymentIntent(order, settings?.options?.paymentGateway || 'stripe');
+    const paymentGateway = (settings?.options?.paymentGateway as string) || 'stripe';
+    const result = await this.savePaymentIntent(order, paymentGateway);
     const {
       id: payment_id,
       client_secret = null,
@@ -310,7 +312,8 @@ export class OrdersService {
       case PaymentGatewayType.STRIPE:
         const paymentIntentParam =
           await this.stripeService.makePaymentIntentParam(order, me);
-        return await this.stripeService.createPaymentIntent(paymentIntentParam);
+        const params = { ...paymentIntentParam, currency: (paymentIntentParam.currency as string) };
+        return await this.stripeService.createPaymentIntent(params);
       case PaymentGatewayType.PAYPAL:
         return this.paypalService.createPaymentIntent(order);
       default:

@@ -24,7 +24,8 @@ export class TypesService {
   }
 
   async getTypeBySlug(slug: string): Promise<Type> {
-    return this.typeModel.findOne({ slug }).exec();
+    const result = await this.typeModel.findOne({ slug }).lean().exec();
+    return (result as unknown as Type);
   }
 
   async create(createTypeDto: CreateTypeDto) {
