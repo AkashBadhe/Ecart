@@ -13,12 +13,12 @@ ssh -o StrictHostKeyChecking=no -l "${username}" "${ip_address}" "sudo mkdir -p 
 
 if [ -d "./api" ]; then
   echo 'Build API'
-  yarn --cwd ./api/rest
-  yarn --cwd ./api/rest build
+  pnpm --dir ./api/rest install
+  pnpm --dir ./api/rest run build
   rm -rf ./api/rest/node_modules
 
-  yarn --cwd ./api/graphql
-  yarn --cwd ./api/graphql build
+  pnpm --dir ./api/graphql install
+  pnpm --dir ./api/graphql run build
   rm -rf ./api/graphql/node_modules
 
   echo 'Zipping api folder'

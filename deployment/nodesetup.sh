@@ -6,8 +6,8 @@ sudo apt-get update
 curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
-echo "Installing yarn..."
-sudo npm i -g yarn
+echo "Installing pnpm..."
+sudo npm i -g pnpm
 
 echo  "Installing pm2"
 sudo npm install -g pm2

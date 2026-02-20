@@ -3,7 +3,7 @@ node_modules
 public
 .husky
 next-env.d.ts
-yarn.lock
+pnpm-lock.yaml
 # graphql-let
 __generated__
 *.graphql.d.ts

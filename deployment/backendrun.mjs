@@ -13,16 +13,16 @@ let whichConfig = await question(
 
 if(whichConfig == 1) {
     echo(chalk.blue("Install packages"));
-    await $`yarn --cwd /var/www/pickbazar-react/api/rest`;
+    await $`pnpm --dir /var/www/pickbazar-react/api/rest install`;
 
     echo(chalk.blue("Running For API App with pm2"));
 
-    await $`pm2 start --name=mock-rest yarn --cwd /var/www/pickbazar-react/api/rest -- start:prod`;
+    await $`pm2 start --name=mock-rest pnpm -- --dir /var/www/pickbazar-react/api/rest start:prod`;
 } else {
     echo(chalk.blue("Install packages"));
-    await $`yarn --cwd /var/www/pickbazar-react/api/graphql`;
+    await $`pnpm --dir /var/www/pickbazar-react/api/graphql install`;
 
     echo(chalk.blue("Running For API App with pm2"));
 
-    await $`pm2 start --name=mock-graphql yarn --cwd /var/www/pickbazar-react/api/graphql -- start:prod`;
+    await $`pm2 start --name=mock-graphql pnpm -- --dir /var/www/pickbazar-react/api/graphql start:prod`;
 }

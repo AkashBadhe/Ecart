@@ -7,7 +7,7 @@ Ecart is an e-commerce website designed to support multiple stores. It's built w
 ## Prerequisites
 Before you begin, ensure you have met the following requirements:
 - Node.js version 16.13.0
-- Yarn package manager
+- pnpm package manager
 
 ## Installation
 Follow these steps to get your development environment running:
@@ -24,21 +24,21 @@ Follow these steps to get your development environment running:
    - Rename `shop\.env.template` to `shop\.env`
 
 3. **Install Dependencies**
-   Install the necessary modules for each part of the project using Yarn:
+    Install the necessary modules for each part of the project using pnpm:
    - For the `admin` module:
      ```bash
      cd admin
-     yarn
+       pnpm install
      ```
    - For the `api` module:
      ```bash
      cd api
-     yarn
+       pnpm install
      ```
    - For the `shop` module:
      ```bash
      cd shop
-     yarn
+       pnpm install
      ```
 
 ## Running the Application
@@ -48,8 +48,8 @@ To start the application, follow these steps for each part of the project:
    Navigate to the `/api/rest` directory and execute the following commands:
    ```bash
    # In api/rest directory
-   yarn
-   yarn start:dev
+   pnpm install
+   pnpm start:dev
 
    # Access the Swagger UI at:
    http://localhost:5050/docs
@@ -58,5 +58,5 @@ To start the application, follow these steps for each part of the project:
 2. **Shop Module**
    In the `/shop` folder, run:
    ```bash
-   yarn dev:shop-rest
+  pnpm dev:rest
    ```

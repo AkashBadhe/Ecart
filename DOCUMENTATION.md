@@ -21,7 +21,7 @@ Fastest E-commerce template built with React, NextJS, TypeScript, Apollo, React-
 
 # Tech We Have Used
 
-We have used monorepo folder structure with Yarn Workspace. In our template we have three different part Admin Dashboard, Shop and API. Tech specification for specific part is given below
+We have used monorepo folder structure with pnpm workspace. In our template we have three different part Admin Dashboard, Shop and API. Tech specification for specific part is given below
 
 ## Admin Dashboard (GraphQL)
 
@@ -76,7 +76,7 @@ For getting started with the template you have to follow the below procedure. Fi
 
 ```bash
 # on root directory
-yarn
+pnpm install
 ```
 
 <br>
@@ -87,8 +87,8 @@ yarn
 
 ```bash
 # on api/graphql directory
-yarn
-yarn start:dev
+pnpm install
+pnpm start:dev
 ```
 
 **NOTE** : This will start the server at `http://localhost:4000` for graphql api and you can access it from browser at `http://localhost:4000/graphql`(for graphql playground).
@@ -101,8 +101,8 @@ yarn start:dev
 
 ```bash
 # on api/rest directory
-yarn
-yarn start:dev
+pnpm install
+pnpm start:dev
 ```
 
 **NOTE** : This will start the server at `http://localhost:5050/api/` for rest api and you can access it from browser at `http://localhost:5050/docs`(for rest swagger doc).
@@ -119,10 +119,10 @@ For starting the admin dashboard part with corresponding api data run below comm
 
 ```bash
 # on root directory
-yarn dev:admin-gql
+pnpm dev:admin-gql
 # or
 # on admin/graphql directory
-yarn dev
+pnpm dev
 
 ```
 
@@ -136,10 +136,10 @@ For starting the admin dashboard part with corresponding api data run below comm
 
 ```bash
 # on root directory
-yarn dev:admin-rest
+pnpm dev:admin-rest
 # or
 # on admin/rest directory
-yarn dev
+pnpm dev
 
 ```
 
@@ -157,13 +157,13 @@ For starting the shop part with corresponding api run below commands.
 ```bash
 # on root directory
 
-yarn dev:shop-gql
-yarn dev:shop-rest
+pnpm dev:shop-gql
+pnpm dev:shop-rest
 
 # or
 # on shop directory
-yarn dev:rest
-yarn dev:gql
+pnpm dev:rest
+pnpm dev:gql
 
 ```
 
@@ -178,7 +178,7 @@ yarn dev:gql
 - Also change the dev command at `package.json`
 - Go to `shop/package.json` file and change the scripts:
 
-"codegen": "node -r dotenv/config $(yarn bin)/graphql-let",
+"codegen": "graphql-let",
 to
 "codegen": "graphql-let",
 ```
@@ -189,11 +189,11 @@ to
 ## Admin(GraphQL)
 
 1. Go to `/api/graphql` folder.
-2. Run `yarn build`
-3. Run `yarn start:prod`
+2. Run `pnpm build`
+3. Run `pnpm start:prod`
 4. Go to `/admin/graphql` folder.
-5. Run `yarn build`
-6. Run `yarn start`
+5. Run `pnpm build`
+6. Run `pnpm start`
 
 **NOTE** : API must be running for the above commands to work.
 
@@ -202,11 +202,11 @@ to
 ## Admin(REST)
 
 1. Go to `/api/rest` folder.
-2. Run `yarn build`
-3. Run `yarn start:prod`
+2. Run `pnpm build`
+3. Run `pnpm start:prod`
 4. Go to `/admin/rest` folder.
-5. Run `yarn build`
-6. Run `yarn start`
+5. Run `pnpm build`
+6. Run `pnpm start`
 
 **NOTE** : API must be running for the above commands to work.
 
@@ -217,11 +217,11 @@ to
 ## Shop(GraphQL)
 
 1. Go to `/api/graphql` folder.
-2. Run `yarn build`
-3. Run `yarn start:prod`
+2. Run `pnpm build`
+3. Run `pnpm start:prod`
 4. Go to `/shop` folder.
-5. Run `yarn build:gql`
-6. Run `yarn start`
+5. Run `pnpm build:gql`
+6. Run `pnpm start`
 
 **NOTE** : API must be running for the above commands to work.
 
@@ -230,11 +230,11 @@ to
 ## Shop(REST)
 
 1. Go to `/api/rest` folder.
-2. Run `yarn build`
-3. Run `yarn start:prod`
+2. Run `pnpm build`
+3. Run `pnpm start:prod`
 4. Go to `/shop` folder.
-5. Run `yarn build:rest`
-6. Run `yarn start`
+5. Run `pnpm build:rest`
+6. Run `pnpm start`
 
 **NOTE** : API must be running for the above commands to work.
 

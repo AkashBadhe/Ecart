@@ -4,6 +4,7 @@
   "description": "",
   "author": "RedQ, Inc",
   "private": true,
+  "packageManager": "pnpm@10.5.2",
   "license": "UNLICENSED",
   "scripts": {
     "prebuild": "rimraf dist",

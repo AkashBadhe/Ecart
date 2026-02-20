@@ -2,10 +2,11 @@
   "name": "@marvel/admin-graphql",
   "version": "9.0.0",
   "private": true,
+  "packageManager": "pnpm@10.5.2",
   "scripts": {
-    "codegen": "node -r dotenv/config $(yarn bin)/graphql-let",
-    "dev": "yarn codegen && next dev -p 3004",
-    "build": "yarn codegen && next build",
+    "codegen": "graphql-let",
+    "dev": "pnpm run codegen && next dev -p 3004",
+    "build": "pnpm run codegen && next build",
     "start": "next start -p 3004",
     "lint": "next lint"
   },

@@ -2,6 +2,7 @@
   "name": "@marvel/admin-rest",
   "version": "9.0.0",
   "private": true,
+  "packageManager": "pnpm@10.5.2",
   "scripts": {
     "dev": "next dev -p 3002",
     "build": "next build",

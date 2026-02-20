@@ -21,8 +21,8 @@ echo(
     "Please wait a while till the successful installation of the dependencies"
 );
 
-echo("yarn");
-await $`yarn`;
+echo("pnpm install");
+await $`pnpm install`;
 
 let whichConfig = await question(
     "What api do you want to use? Enter 1 for REST api or 2 for GraphQL: "
@@ -74,12 +74,12 @@ if (whichConfig == 1) {
 
 if (whichConfig == 1) {
     echo("Build For REST api");
-    await $`yarn --cwd ./ build:shop-rest`;
-    await $`yarn --cwd ./ build:admin-rest`;
+    await $`pnpm --dir ./ run build:shop-rest`;
+    await $`pnpm --dir ./ run build:admin-rest`;
 } else {
     echo("Build For GraphQL api");
-    await $`yarn --cwd ./ build:shop-gql`;
-    await $`yarn --cwd ./ build:admin-gql`;
+    await $`pnpm --dir ./ run build:shop-gql`;
+    await $`pnpm --dir ./ run build:admin-gql`;
 }
 
 echo(chalk.blue("#Upload project file to server"));
@@ -96,9 +96,9 @@ await $`rm -rf admin/rest/node_modules`;
 await $`rm -rf admin/graphql/node_modules`;
 await $`rm -rf ./node_modules`;
 
-echo("Zipping shop, admin, package.json, babel.config.js and yarn.lock folder");
+echo("Zipping shop, admin, package.json, babel.config.js and pnpm-lock.yaml folder");
 
-await $`zip -r frontend.zip shop admin package.json babel.config.js yarn.lock`;
+await $`zip -r frontend.zip shop admin package.json babel.config.js pnpm-lock.yaml`;
 
 echo(chalk.green("frontend.zip file created"));
 let front_end_source_path = "./frontend.zip";
