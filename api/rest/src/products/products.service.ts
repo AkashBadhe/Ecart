@@ -42,10 +42,14 @@ export class ProductsService {
     sortedBy = SortOrder.DESC,
     orderBy = QueryProductsOrderByColumn.UPDATED_AT,
     searchJoin = '$or'
-  }: GetProductsDto) {
+  }: GetProductsDto, tenantShopId?: number) {
     const skip = (page - 1) * limit;
     const query = getSearchQuery(search, searchJoin);
-    console.log(JSON.stringify(query));
+
+    // Tenant scoping: when a tenant is resolved, only return that shop's products
+    if (tenantShopId !== undefined) {
+      query['shop_id'] = tenantShopId;
+    }
 
     const sort: any = {
       [orderBy]: sortedBy.toLowerCase() === 'desc' ? -1 : 1,
@@ -86,9 +90,13 @@ export class ProductsService {
     return product;
   }
 
-  async getPopularProducts({ limit, type_slug }: GetPopularProductsDto) {
+  async getPopularProducts({ limit, type_slug }: GetPopularProductsDto, tenantShopId?: number) {
+    const filter: any = { type_slug: type_slug };
+    if (tenantShopId !== undefined) {
+      filter['shop_id'] = tenantShopId;
+    }
     return await this.productModel
-      .find({ type_slug: type_slug })
+      .find(filter)
       .limit(limit)
       .exec();
   }

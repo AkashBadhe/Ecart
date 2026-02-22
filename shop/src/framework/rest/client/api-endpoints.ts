@@ -48,5 +48,6 @@ export const API_ENDPOINTS = {
   CARDS: '/cards',
   SET_DEFAULT_CARD: '/set-default-card',
   SAVE_PAYMENT_METHOD: '/save-payment-method',
+  TENANT_RESOLVE: '/tenant/resolve',
   PAYMENT_INTENT: '/payment-intent',
 };

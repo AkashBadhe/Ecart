@@ -105,7 +105,7 @@ export const getStaticProps: GetStaticProps<
     limit: CATEGORIES_PER_PAGE,
     language: locale,
     parent:
-      types.find((t) => t.slug === pageType)?.settings.layoutType === 'minimal'
+      types.find((t) => t.slug === pageType)?.settings?.layoutType === 'minimal'
         ? 'all'
         : 'null',
   };
@@ -125,7 +125,7 @@ export const getStaticProps: GetStaticProps<
         },
       },
       layout:
-        types.find((t) => t.slug === pageType)?.settings.layoutType ??
+        types.find((t) => t.slug === pageType)?.settings?.layoutType ??
         'default',
       ...(await serverSideTranslations(locale!, ['common', 'banner'])),
       dehydratedState: JSON.parse(JSON.stringify(dehydrate(queryClient))),

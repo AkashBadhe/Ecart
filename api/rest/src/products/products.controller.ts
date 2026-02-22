@@ -7,7 +7,9 @@ import {
   Delete,
   Query,
   Put,
+  Req,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -25,8 +27,12 @@ export class ProductsController {
   }
 
   @Get()
-  async getProducts(@Query() query: GetProductsDto): Promise<ProductPaginator> {
-    return this.productsService.getProducts(query);
+  async getProducts(
+    @Query() query: GetProductsDto,
+    @Req() req: Request,
+  ): Promise<ProductPaginator> {
+    const tenantShopId = (req as any).tenantShopId as number | undefined;
+    return this.productsService.getProducts(query, tenantShopId);
   }
 
   @Get(':slug')
@@ -49,7 +55,11 @@ export class ProductsController {
 export class PopularProductsController {
   constructor(private readonly productsService: ProductsService) {}
   @Get()
-  async getProducts(@Query() query: GetPopularProductsDto): Promise<Product[]> {
-    return this.productsService.getPopularProducts(query);
+  async getProducts(
+    @Query() query: GetPopularProductsDto,
+    @Req() req: Request,
+  ): Promise<Product[]> {
+    const tenantShopId = (req as any).tenantShopId as number | undefined;
+    return this.productsService.getPopularProducts(query, tenantShopId);
   }
 }

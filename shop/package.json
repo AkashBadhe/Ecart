@@ -17,6 +17,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
+    "@react-google-maps/api": "2.20.6",
     "@apollo/client": "3.5.10",
     "@headlessui/react": "1.6.5",
     "@hookform/resolvers": "2.8.8",

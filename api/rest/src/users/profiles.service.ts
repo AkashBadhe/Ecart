@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { Profile, ProfileDocument } from './schemas/profile.schema';
@@ -21,10 +21,16 @@ export class ProfilesService {
   }
 
   async findOne(id: string): Promise<Profile> {
+    if (!Types.ObjectId.isValid(id)) {
+      return null;
+    }
     return this.profileModel.findById(id).exec();
   }
 
   async update(id: string, updateProfileDto: UpdateProfileDto): Promise<Profile> {
+    if (!Types.ObjectId.isValid(id)) {
+      return null;
+    }
     const updatedProfile = await this.profileModel
       .findByIdAndUpdate(id, updateProfileDto, { new: true })
       .exec();
@@ -32,6 +38,9 @@ export class ProfilesService {
   }
 
   async remove(id: string): Promise<Profile> {
+    if (!Types.ObjectId.isValid(id)) {
+      return null;
+    }
     return this.profileModel.findByIdAndRemove(id).exec();
   }
 }

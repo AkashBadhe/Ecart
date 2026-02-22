@@ -1,4 +1,3 @@
-import { signIn } from 'next-auth/react';
 import Logo from '@/components/ui/logo';
 import Alert from '@/components/ui/alert';
 import Input from '@/components/ui/forms/input';
@@ -30,6 +29,24 @@ function LoginForm() {
   const { openModal } = useModalAction();
   const isCheckout = router.pathname.includes('checkout');
   const { mutate: login, isLoading, serverError, setServerError } = useLogin();
+
+  function socialLoginWithProvider(provider: 'google' | 'facebook') {
+    const apiBaseUrl = process.env.NEXT_PUBLIC_REST_API_ENDPOINT;
+    const returnTo = isCheckout ? Routes.checkout : Routes.home;
+    const redirectUri = `${window.location.origin}/social-login?return_to=${encodeURIComponent(
+      returnTo
+    )}`;
+
+    if (!apiBaseUrl) {
+      setServerError('error-something-wrong');
+      return;
+    }
+
+    const oauthUrl = `${apiBaseUrl}/oauth/${provider}?redirect_uri=${encodeURIComponent(
+      redirectUri
+    )}`;
+    window.location.href = oauthUrl;
+  }
 
   function onSubmit({ email, password }: LoginUserInput) {
     login({
@@ -93,22 +110,22 @@ function LoginForm() {
           className="!bg-social-google !text-light hover:!bg-social-google-hover"
           disabled={isLoading}
           onClick={() => {
-            signIn('google');
+            socialLoginWithProvider('google');
           }}
         >
           <GoogleIcon className="h-4 w-4 ltr:mr-3 rtl:ml-3" />
           {t('text-login-google')}
         </Button>
-        {/* <Button
+        <Button
           className="!bg-social-facebook !text-light hover:!bg-social-facebook-hover"
           disabled={isLoading}
           onClick={() => {
-            signIn('facebook');
+            socialLoginWithProvider('facebook');
           }}
         >
           <FacebookIcon className="h-4 w-4 ltr:mr-3 rtl:ml-3" />
           {t('text-login-facebook')}
-        </Button> */}
+        </Button>
 
         <Button
           className="h-11 w-full !bg-gray-500 !text-light hover:!bg-gray-600 sm:h-12"

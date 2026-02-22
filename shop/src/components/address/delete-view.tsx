@@ -16,7 +16,7 @@ export default function AddressDeleteView() {
     if (!addressId) {
       return;
     }
-    deleteAddressById({ id: addressId });
+    deleteAddressById(addressId);
   }
   return (
     <ConfirmationCard

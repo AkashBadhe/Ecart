@@ -7,7 +7,9 @@ import {
   Param,
   Delete,
   Query,
+  Req,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { GetCategoriesDto } from './dto/get-categories.dto';
@@ -23,8 +25,9 @@ export class CategoriesController {
   }
 
   @Get()
-  findAll(@Query() query: GetCategoriesDto) {
-    return this.categoriesService.getCategories(query);
+  findAll(@Query() query: GetCategoriesDto, @Req() req: Request) {
+    const tenantShopId = (req as any).tenantShopId as number | undefined;
+    return this.categoriesService.getCategories(query, tenantShopId);
   }
 
   @Get(':param')

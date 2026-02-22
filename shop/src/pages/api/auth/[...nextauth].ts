@@ -1,4 +1,4 @@
-import { getEnv } from '@/config/get-env';
+import { getEnv, getOptionalEnv } from '@/config/get-env';
 import NextAuth from 'next-auth';
 import FacebookProvider from 'next-auth/providers/facebook';
 import GoogleProvider from 'next-auth/providers/google';
@@ -8,14 +8,19 @@ import GoogleProvider from 'next-auth/providers/google';
 export default NextAuth({
   // https://next-auth.js.org/configuration/providers
   providers: [
-    FacebookProvider({
-      clientId: getEnv('FACEBOOK_CLIENT_ID'),
-      clientSecret: getEnv('FACEBOOK_CLIENT_SECRET'),
-    }),
     GoogleProvider({
       clientId: getEnv('GOOGLE_CLIENT_ID'),
       clientSecret: getEnv('GOOGLE_CLIENT_SECRET'),
     }),
+    ...(getOptionalEnv('FACEBOOK_CLIENT_ID') &&
+    getOptionalEnv('FACEBOOK_CLIENT_SECRET')
+      ? [
+          FacebookProvider({
+            clientId: getEnv('FACEBOOK_CLIENT_ID'),
+            clientSecret: getEnv('FACEBOOK_CLIENT_SECRET'),
+          }),
+        ]
+      : []),
   ],
 
   // The secret should be set to a reasonably long random string.

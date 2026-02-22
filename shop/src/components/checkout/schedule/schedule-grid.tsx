@@ -24,8 +24,10 @@ export const ScheduleGrid: React.FC<ScheduleProps> = ({
 
   const [selectedSchedule, setSchedule] = useAtom(deliveryTimeAtom);
   useEffect(() => {
-    setSchedule(schedules[0]);
-  }, []);
+    if (!selectedSchedule && Array.isArray(schedules) && schedules.length > 0) {
+      setSchedule(schedules[0]);
+    }
+  }, [selectedSchedule, schedules, setSchedule]);
   return (
     <div className={className}>
       <div className="mb-5 flex items-center justify-between md:mb-8">

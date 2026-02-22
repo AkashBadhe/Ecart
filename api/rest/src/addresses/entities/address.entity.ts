@@ -15,6 +15,8 @@ export class Address extends CoreEntity {
 }
 export class UserAddress {
   street_address: string;
+  flat_number?: string;
+  building_name?: string;
   country: string;
   city: string;
   state: string;

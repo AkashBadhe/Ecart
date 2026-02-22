@@ -26,3 +26,13 @@ export function getEnv(
   }
   return val;
 }
+
+export function getOptionalEnv(
+  name: keyof EnvVariables
+): EnvVariables[keyof EnvVariables] | undefined {
+  const val = process.env[name];
+  if (!val) {
+    return undefined;
+  }
+  return val;
+}

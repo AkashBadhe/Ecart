@@ -46,15 +46,16 @@ export const getStaticProps: GetStaticProps<
   );
   try {
     const shop = await client.shops.get(slug);
+    const resolvedShopId = shop?.id != null ? String(shop.id) : '__missing_shop_id__';
     await queryClient.prefetchInfiniteQuery(
-      [API_ENDPOINTS.PRODUCTS, { limit: PRODUCTS_PER_PAGE, shop_id: shop.id, language: locale }],
+      [API_ENDPOINTS.PRODUCTS, { limit: PRODUCTS_PER_PAGE, shop_id: resolvedShopId, language: locale }],
       ({ queryKey }) => client.products.all(queryKey[1] as ProductQueryOptions)
     );
     return {
       props: {
         shop,
         variables: {
-          shop_id: shop?.id,
+          shop_id: resolvedShopId,
           limit: PRODUCTS_PER_PAGE,
         },
         ...(await serverSideTranslations(locale!, ['common'])),

@@ -7,7 +7,9 @@ import {
   Param,
   Delete,
   Query,
+  Req,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { TypesService } from './types.service';
 import { CreateTypeDto } from './dto/create-type.dto';
 import { UpdateTypeDto } from './dto/update-type.dto';
@@ -23,8 +25,9 @@ export class TypesController {
   }
 
   @Get()
-  findAll(@Query() query: GetTypesDto) {
-    return this.typesService.getTypes(query);
+  findAll(@Query() query: GetTypesDto, @Req() req: Request) {
+    const tenantShopId = (req as any).tenantShopId as number | undefined;
+    return this.typesService.getTypes(query, tenantShopId);
   }
 
   @Get(':slug')

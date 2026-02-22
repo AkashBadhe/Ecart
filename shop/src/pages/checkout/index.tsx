@@ -5,6 +5,9 @@ import { getLayout } from '@/components/layouts/layout';
 import { AddressType } from '@/framework/utils/constants';
 import Seo from '@/components/seo/seo';
 import { useUser } from '@/framework/user';
+import Checkbox from '@/components/ui/forms/checkbox/checkbox';
+import { useAtom } from 'jotai';
+import { useEffect, useState } from 'react';
 export { getStaticProps } from '@/framework/general.ssr';
 
 const ScheduleGrid = dynamic(
@@ -26,6 +29,18 @@ export default function CheckoutPage() {
   const { t } = useTranslation();
   const { me } = useUser();
   const { id, address, profile } = me ?? {};
+  const [shippingAddress] = useAtom(shippingAddressAtom);
+  const [billingAddress, setBillingAddress] = useAtom(billingAddressAtom);
+  const [billingSameAsShipping, setBillingSameAsShipping] = useState(
+    () => !billingAddress
+  );
+
+  useEffect(() => {
+    if (billingSameAsShipping && shippingAddress) {
+      setBillingAddress(shippingAddress as any);
+    }
+  }, [billingSameAsShipping, shippingAddress, setBillingAddress]);
+
   return (
     <>
       <Seo noindex={true} nofollow={true} />
@@ -40,22 +55,10 @@ export default function CheckoutPage() {
             />
 
             <AddressGrid
-              userId={id!}
-              className="p-5 bg-light shadow-700 md:p-8"
-              label={t('text-billing-address')}
-              count={2}
-              //@ts-ignore
-              addresses={address?.filter(
-                (item) => item?.type === AddressType.Billing
-              )}
-              atom={billingAddressAtom}
-              type={AddressType.Billing}
-            />
-            <AddressGrid
               userId={me?.id!}
               className="p-5 bg-light shadow-700 md:p-8"
               label={t('text-shipping-address')}
-              count={3}
+              count={2}
               //@ts-ignore
               addresses={address?.filter(
                 (item) => item?.type === AddressType.Shipping
@@ -63,6 +66,30 @@ export default function CheckoutPage() {
               atom={shippingAddressAtom}
               type={AddressType.Shipping}
             />
+            <div className="rounded bg-light p-5 shadow-700 md:p-8">
+              <Checkbox
+                name="billingSameAsShipping"
+                checked={billingSameAsShipping}
+                onChange={(event) =>
+                  setBillingSameAsShipping(event.target.checked)
+                }
+                label="Billing address same as shipping address"
+              />
+            </div>
+            {!billingSameAsShipping && (
+              <AddressGrid
+                userId={id!}
+                className="p-5 bg-light shadow-700 md:p-8"
+                label={t('text-billing-address')}
+                count={3}
+                //@ts-ignore
+                addresses={address?.filter(
+                  (item) => item?.type === AddressType.Billing
+                )}
+                atom={billingAddressAtom}
+                type={AddressType.Billing}
+              />
+            )}
             <ScheduleGrid
               className="p-5 bg-light shadow-700 md:p-8"
               label={t('text-delivery-schedule')}

@@ -9,6 +9,12 @@ export class UserAddress {
   @Prop()
   street_address: string;
 
+  @Prop()
+  flat_number?: string;
+
+  @Prop()
+  building_name?: string;
+
   @IsNotEmpty()
   @Prop({ required: true})
   country: string;

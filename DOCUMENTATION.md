@@ -1,5 +1,59 @@
 # PickBazar Documentation
 
+## Project Updates (REST + MongoDB)
+
+This repository is currently using REST API + MongoDB as the primary stack.
+
+### Quick Setup
+
+1. Install dependencies from root:
+
+```bash
+pnpm install
+```
+
+2. Configure environment files:
+- `api/rest/.env` (must include `MONGODB_URI` and `PORT=5050`)
+- `admin/rest/.env` (`NEXT_PUBLIC_REST_API_ENDPOINT=http://localhost:5050/api`)
+- `shop/.env` (`NEXT_PUBLIC_REST_API_ENDPOINT=http://localhost:5050/api`, `FRAMEWORK_PROVIDER=rest`, `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=...`)
+
+3. Start REST apps:
+
+```bash
+pnpm dev:rest
+```
+
+### Runtime URLs
+- API: `http://localhost:5050/api`
+- Swagger: `http://localhost:5050/docs`
+- Admin REST: `http://localhost:3002`
+- Shop REST: `http://localhost:3005`
+
+### Realistic Seed Data
+
+Seeder script:
+- `api/rest/scripts/seed-realistic-data.js`
+
+Command:
+
+```bash
+pnpm --dir api/rest run seed:realistic
+```
+
+Seed output includes realistic:
+- shops (5)
+- products (150)
+- types, categories, tags
+- owner users
+- settings document
+
+### Seed Image URL
+
+Seeded images include Cloudinary URLs, for example:
+- `https://res.cloudinary.com/demo/image/upload/sample.jpg`
+
+`res.cloudinary.com` is added to Next.js image domains for app rendering compatibility.
+
 > For updated online docs, please check this,
 
 [https://pickbazar-react-doc.vercel.app/](https://pickbazar-react-doc.vercel.app/)
@@ -149,7 +203,7 @@ For starting the shop part with corresponding api run below commands.
 
 1. Go to `/shop` folder.
 2. Copy the contents of `.env.template` into a new file called `.env`
-3. Fill the `.env` file with your values like, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=, SECRET=, GOOGLE_CLIENT_ID=, GOOGLE_CLIENT_SECRET=`
+3. Fill the `.env` file with your values like, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=, SECRET=, GOOGLE_CLIENT_ID=, GOOGLE_CLIENT_SECRET=, NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=`
 4. SET `FRAMEWORK_PROVIDER='yourProjectType'` in `.env` file. ex: if you want to use rest then `FRAMEWORK_PROVIDER='rest'` or `FRAMEWORK_PROVIDER='graphql'`
 5. SET `tsconfig.json`. if you want to use `rest version` then copy the content from `tsconfig.rest.json` to `tsconfig.json` file or if you want to use `graphql version` then copy the content from `tsconfig.graphql.json` to `tsconfig.json` file.
 6. Run below command to start the server.

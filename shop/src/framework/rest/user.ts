@@ -10,10 +10,9 @@ import { toast } from 'react-toastify';
 import client from './client';
 import { authorizationAtom } from '@/store/authorization-atom';
 import { useAtom } from 'jotai';
-import { signOut as socialLoginSignOut } from 'next-auth/react';
 import { useToken } from '@/lib/hooks/use-token';
 import { API_ENDPOINTS } from './client/api-endpoints';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import type {
   RegisterUserInput,
   ChangePasswordUserInput,
@@ -27,6 +26,23 @@ import {
 } from '@/components/auth/forgot-password';
 import { clearCheckoutAtom } from '@/store/checkout';
 
+// Ensure every address has an id for reliable edit/delete
+// Ensure every address has a stable id for reliable edit/delete.
+// IMPORTANT: Only generate IDs once per data fetch, not per render.
+function ensureAddressIds(addresses: any[]): any[] {
+  if (!addresses) return [];
+  let changed = false;
+  const result = addresses.map((addr: any) => {
+    if (addr.id) return addr;
+    changed = true;
+    return {
+      ...addr,
+      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    };
+  });
+  return changed ? result : addresses;
+}
+
 export function useUser() {
   const [isAuthorized] = useAtom(authorizationAtom);
   const { data, isLoading, error } = useQuery(
@@ -39,32 +55,52 @@ export function useUser() {
       },
     }
   );
-  //TODO: do some improvement here
-  return { me: data, isLoading, error, isAuthorized };
+  // Memoize so a new object is only created when the underlying data changes
+  const me = useMemo(() => {
+    if (!data) return data;
+    return { ...data, address: ensureAddressIds(data.address) };
+  }, [data]);
+  return { me, isLoading, error, isAuthorized };
 }
 
 export const useDeleteAddress = () => {
   const { closeModal } = useModalAction();
   const queryClient = useQueryClient();
-  return useMutation(client.users.deleteAddress, {
-    onSuccess: (data) => {
-      if (data) {
-        toast.success('successfully-address-deleted');
-        closeModal();
-        return;
-      }
-    },
-    onError: (error) => {
-      const {
-        response: { data },
-      }: any = error ?? {};
 
-      toast.error(data?.message);
+  return useMutation(
+    (addressId: string) => {
+      // Get the freshest user data from the query cache
+      const cachedUser: any = queryClient.getQueryData([API_ENDPOINTS.USERS_ME]);
+      const allAddresses = ensureAddressIds(cachedUser?.address || []);
+      
+      // Remove the address matching the given ID
+      const updatedAddresses = allAddresses.filter(
+        (addr: any) => addr.id !== addressId
+      );
+      
+      return client.users.update({
+        id: cachedUser?.id,
+        address: updatedAddresses,
+      });
     },
-    onSettled: () => {
-      queryClient.invalidateQueries(API_ENDPOINTS.USERS_ME);
-    },
-  });
+    {
+      onSuccess: (data) => {
+        if (data) {
+          toast.success('successfully-address-deleted');
+          closeModal();
+        }
+      },
+      onError: (error) => {
+        const {
+          response: { data },
+        }: any = error ?? {};
+        toast.error(data?.message || 'Failed to delete address');
+      },
+      onSettled: () => {
+        queryClient.invalidateQueries(API_ENDPOINTS.USERS_ME);
+      },
+    }
+  );
 };
 
 export const useUpdateUser = () => {
@@ -79,6 +115,7 @@ export const useUpdateUser = () => {
       }
     },
     onError: (error) => {
+      console.error('useUpdateUser onError:', error);
       toast.error(t('error-something-wrong'));
     },
     onSettled: () => {
@@ -308,7 +345,6 @@ export function useLogout() {
     },
   });
   function handleLogout() {
-    socialLoginSignOut({ redirect: false });
     signOut();
   }
   return {

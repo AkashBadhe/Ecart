@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import {
   GetUsersDto,
@@ -9,13 +9,21 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { paginate } from 'src/common/pagination/paginate';
 import { User, UserDocument } from './schemas/user.schema';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { FilterQuery, Model, Types } from 'mongoose';
 import { SortOrder } from 'src/common/dto/generic-conditions.dto';
 import { getSearchQuery } from 'src/common/utils';
 
 @Injectable()
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+
+  private buildUserIdQuery(id: string): FilterQuery<UserDocument> {
+    const conditions: Record<string, unknown>[] = [{ id }];
+    if (Types.ObjectId.isValid(id)) {
+      conditions.push({ _id: id });
+    }
+    return { $or: conditions };
+  }
 
   create(createUserDto: CreateUserDto) {
     return this.userModel.create(createUserDto);
@@ -51,7 +59,7 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-    return this.userModel.findById(id).exec();
+    return this.userModel.findOne(this.buildUserIdQuery(id)).exec();
   }
   
   async getByShopId(id: string) {
@@ -59,30 +67,36 @@ export class UsersService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
-    return this.userModel
-      .findByIdAndUpdate(id, updateUserDto, { new: true })
+    const updatedUser = await this.userModel
+      .findOneAndUpdate(this.buildUserIdQuery(id), updateUserDto, { new: true })
       .exec();
+
+    if (!updatedUser) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+
+    return updatedUser;
   }
 
   remove(id: string) {
-    return this.userModel.findByIdAndDelete(id).exec();
+    return this.userModel.findOneAndDelete(this.buildUserIdQuery(id)).exec();
   }
 
   async makeAdmin(user_id: string) {
     return this.userModel
-      .findByIdAndUpdate(user_id, { is_admin: true }, { new: true })
+      .findOneAndUpdate(this.buildUserIdQuery(user_id), { is_admin: true }, { new: true })
       .exec();
   }
 
   banUser(id: string) {
     return this.userModel
-      .findByIdAndUpdate(id, { is_active: false }, { new: true })
+      .findOneAndUpdate(this.buildUserIdQuery(id), { is_active: false }, { new: true })
       .exec();
   }
 
   activeUser(id: string) {
     return this.userModel
-    .findByIdAndUpdate(id, { is_active: true }, { new: true })
+    .findOneAndUpdate(this.buildUserIdQuery(id), { is_active: true }, { new: true })
     .exec();
   }
 }

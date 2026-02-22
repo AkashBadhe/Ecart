@@ -55,12 +55,12 @@ export class CouponsService {
 
   async update(id: number, updateCouponDto: UpdateCouponDto) {
     return this.couponModel
-      .findByIdAndUpdate(id, updateCouponDto, { new: true })
+      .findOneAndUpdate({ id: Number(id) }, updateCouponDto, { new: true })
       .exec();
   }
 
   async remove(id: number) {
-    return this.couponModel.findByIdAndDelete(id).exec();
+    return this.couponModel.findOneAndDelete({ id: Number(id) }).exec();
   }
 
   async verifyCoupon(code: string) {

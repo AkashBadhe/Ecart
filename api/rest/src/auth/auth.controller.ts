@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, Req, Query, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
   ChangePasswordDto,
@@ -12,6 +12,8 @@ import {
   VerifyForgetPasswordDto,
   VerifyOtpDto,
 } from './dto/create-auth.dto';
+import { Request } from 'express';
+import { Response } from 'express';
 
 @Controller()
 export class AuthController {
@@ -28,6 +30,44 @@ export class AuthController {
   @Post('social-login-token')
   socialLogin(@Body() socialLoginDto: SocialLoginDto) {
     return this.authService.socialLogin(socialLoginDto);
+  }
+
+  @Get('oauth/google')
+  googleOAuth(
+    @Query('redirect_uri') redirectUri: string,
+    @Res() res: Response,
+  ) {
+    const authUrl = this.authService.getOAuthRedirectUrl('google', redirectUri);
+    return res.redirect(authUrl);
+  }
+
+  @Get('oauth/google/callback')
+  async googleOAuthCallback(
+    @Query('code') code: string,
+    @Query('state') state: string,
+    @Res() res: Response,
+  ) {
+    const redirectUrl = await this.authService.handleOAuthCallback('google', code, state);
+    return res.redirect(redirectUrl);
+  }
+
+  @Get('oauth/facebook')
+  facebookOAuth(
+    @Query('redirect_uri') redirectUri: string,
+    @Res() res: Response,
+  ) {
+    const authUrl = this.authService.getOAuthRedirectUrl('facebook', redirectUri);
+    return res.redirect(authUrl);
+  }
+
+  @Get('oauth/facebook/callback')
+  async facebookOAuthCallback(
+    @Query('code') code: string,
+    @Query('state') state: string,
+    @Res() res: Response,
+  ) {
+    const redirectUrl = await this.authService.handleOAuthCallback('facebook', code, state);
+    return res.redirect(redirectUrl);
   }
   @Post('otp-login')
   otpLogin(@Body() otpLoginDto: OtpLoginDto) {
@@ -65,8 +105,8 @@ export class AuthController {
   }
 
   @Get('me')
-  me() {
-    return this.authService.me();
+  me(@Req() req: Request) {
+    return this.authService.me(req.headers.authorization);
   }
   @Post('add-points')
   addWalletPoints(@Body() addPointsDto: any) {

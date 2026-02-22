@@ -486,6 +486,10 @@ export interface Address {
     state: string;
     zip: string;
     street_address: string;
+    flat_number?: string;
+    building_name?: string;
+    lat?: number;
+    lng?: number;
   };
 }
 
@@ -736,6 +740,10 @@ export interface UserAddress {
   city: string;
   state: string;
   zip: string;
+  flat_number?: string;
+  building_name?: string;
+  lat?: number;
+  lng?: number;
   billing_address?: Address;
   shipping_address?: Address;
 }

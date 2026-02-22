@@ -9,6 +9,7 @@ import { useAtom } from 'jotai';
 
 //FIXME: should be in types file
 type FormValues = {
+  id?: string;
   title: string;
   type: AddressType;
   address: {
@@ -17,6 +18,10 @@ type FormValues = {
     state: string;
     zip: string;
     street_address: string;
+    flat_number?: string;
+    building_name?: string;
+    lat?: number;
+    lng?: number;
   };
 };
 
@@ -46,10 +51,19 @@ const CreateOrUpdateGuestAddressForm = () => {
       <AddressForm
         onSubmit={onSubmit}
         defaultValues={{
-          title: address?.title ?? '',
+          id: address?.id,
+          title: address?.title ?? 'Home',
           type: address?.type ?? type,
           address: {
-            ...address?.address,
+            country: address?.address?.country ?? 'India',
+            city: address?.address?.city ?? '',
+            state: address?.address?.state ?? '',
+            zip: address?.address?.zip ?? '',
+            street_address: address?.address?.street_address ?? '',
+            flat_number: address?.address?.flat_number ?? '',
+            building_name: address?.address?.building_name ?? '',
+            lat: address?.address?.lat,
+            lng: address?.address?.lng,
           },
         }}
       />

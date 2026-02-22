@@ -7,19 +7,31 @@ import { Type } from './entities/type.entity';
 import { GetTypesDto } from './dto/get-types.dto';
 import { getSearchQuery } from 'src/common/utils';
 import { Type as TypeSchemaEntity, TypeDocument } from './schemas/type.schema';
+import { Product, ProductDocument } from '../products/schemas/products.schema';
 
 @Injectable()
 export class TypesService {
   constructor(
     @InjectModel(TypeSchemaEntity.name)
     private readonly typeModel: Model<TypeDocument>,
+    @InjectModel(Product.name)
+    private readonly productModel: Model<ProductDocument>,
   ) {}
 
-  async getTypes({ text, search }: GetTypesDto) {
+  async getTypes({ text, search }: GetTypesDto, tenantShopId?: number) {
     const query = getSearchQuery(search, 'and');
     if (text?.replace(/%/g, '')) {
       query['name'] = { $regex: text.replace(/%/g, ''), $options: 'i' };
     }
+
+    // Tenant scoping: only return types that have products in this shop
+    if (tenantShopId !== undefined) {
+      const typeSlugs = await this.productModel.distinct('type.slug', {
+        shop_id: tenantShopId,
+      }).exec();
+      query['slug'] = { $in: typeSlugs };
+    }
+
     return this.typeModel.find(query).exec();
   }
 

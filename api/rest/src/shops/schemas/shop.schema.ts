@@ -12,6 +12,9 @@ export type ShopDocument = Shop & Document;
 
 @Schema({ timestamps: true })
 export class Shop extends CoreEntity {
+  @Prop({ type: Number, index: true, unique: true, sparse: true })
+  id: number;
+
   @Prop({ type: Number })
   owner_id: number;
 
@@ -36,8 +39,8 @@ export class Shop extends CoreEntity {
   @Prop({ type: String } )
   name: string;
 
-  @Prop({ type: String, unique: true})
-  slug: string;
+  @Prop({ type: String, unique: true, sparse: true})
+  slug?: string;
 
   @Prop({ type: String })
   description?: string;
@@ -56,3 +59,5 @@ export class Shop extends CoreEntity {
 }
 
 export const ShopSchema = SchemaFactory.createForClass(Shop);
+
+ShopSchema.index({ slug: 1 }, { unique: true, sparse: true });

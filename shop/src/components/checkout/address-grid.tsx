@@ -1,7 +1,7 @@
 import { useModalAction } from '@/components/ui/modal/modal.context';
 import { RadioGroup } from '@headlessui/react';
 import { useAtom, WritableAtom } from 'jotai';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import AddressCard from '@/components/address/address-card';
 import { AddressHeader } from '@/components/address/address-header';
 import { useTranslation } from 'next-i18next';
@@ -29,17 +29,21 @@ export const AddressGrid: React.FC<AddressesProps> = ({
   const { t } = useTranslation('common');
   const [selectedAddress, setAddress] = useAtom(atom);
   const { openModal } = useModalAction();
+  const prevAddressCountRef = useRef(addresses?.length);
 
   useEffect(() => {
-    if (addresses?.length) {
-      if (selectedAddress?.id) {
-        const index = addresses.findIndex((a) => a.id === selectedAddress.id);
-        setAddress(addresses[index]);
-      } else {
-        setAddress(addresses?.[0]);
-      }
+    if (!addresses?.length) return;
+    // Only auto-select when the list actually changes (add/delete) or nothing selected
+    const countChanged = prevAddressCountRef.current !== addresses.length;
+    prevAddressCountRef.current = addresses.length;
+
+    if (!selectedAddress?.id || countChanged) {
+      const match = selectedAddress?.id
+        ? addresses.find((a) => a.id === selectedAddress.id)
+        : undefined;
+      setAddress(match ?? addresses[0]);
     }
-  }, [addresses, addresses?.length, selectedAddress?.id, setAddress]);
+  }, [addresses?.length]);  // eslint-disable-line react-hooks/exhaustive-deps
 
   function onAdd() {
     openModal('ADD_OR_UPDATE_ADDRESS', { customerId: userId, type });

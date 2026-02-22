@@ -25,11 +25,11 @@ export class AttributesService {
   }
 
   update(id: number, updateAttributeDto: UpdateAttributeDto) {
-    return this.attributeModel.findByIdAndUpdate(id, updateAttributeDto, { new: true }).exec();
+    return this.attributeModel.findOneAndUpdate({ id: Number(id) }, updateAttributeDto, { new: true }).exec();
   }
 
 
   remove(id: number) {
-    return this.attributeModel.findByIdAndDelete(id).exec();
+    return this.attributeModel.findOneAndDelete({ id: Number(id) }).exec();
   }
 }

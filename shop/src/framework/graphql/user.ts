@@ -3,7 +3,6 @@ import { useTranslation } from 'next-i18next';
 import { toast } from 'react-toastify';
 import { authorizationAtom } from '@/store/authorization-atom';
 import { useAtom } from 'jotai';
-import { signOut as socialLoginSignOut } from 'next-auth/react';
 import { useToken } from '@/lib/hooks/use-token';
 import {
   CustomerDocument,
@@ -412,7 +411,6 @@ export function useLogout() {
   });
 
   function handleLogout() {
-    socialLoginSignOut({ redirect: false });
     signOut();
   }
 

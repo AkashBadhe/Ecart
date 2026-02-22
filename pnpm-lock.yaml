@@ -699,6 +699,9 @@ importers:
       '@reach/portal':
         specifier: 0.16.2
         version: 0.16.2(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
+      '@react-google-maps/api':
+        specifier: 2.20.6
+        version: 2.20.6(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
       '@stripe/react-stripe-js':
         specifier: 1.7.0
         version: 1.7.0(@stripe/stripe-js@1.25.0)(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
@@ -2006,8 +2009,14 @@ packages:
   '@googlemaps/js-api-loader@1.12.8':
     resolution: {integrity: sha512-h1RNVIJkHWL4UrdJo8fwECJwSRg8CSIfTEtPdzvThcji7tAPvVBDVBPzvPKhvl8e8mWEGPhnYOt6kPfSxJL+vQ==}
 
+  '@googlemaps/js-api-loader@1.16.8':
+    resolution: {integrity: sha512-CROqqwfKotdO6EBjZO/gQGVTbeDps5V7Mt9+8+5Q+jTg5CRMi3Ii/L9PmV3USROrt2uWxtGzJHORmByxyo9pSQ==}
+
   '@googlemaps/markerclusterer@1.0.12':
     resolution: {integrity: sha512-DSmN2w1ZoI+PBWfNCKYcr+zalP0uaaKIU08+UgebJYZ96X+J6CdUpD+xOVwBV1OJDiIXkneHquOZnT+V6dm+Sg==}
+
+  '@googlemaps/markerclusterer@2.5.3':
+    resolution: {integrity: sha512-x7lX0R5yYOoiNectr10wLgCBasNcXFHiADIBdmn7jQllF2B5ENQw5XtZK+hIw4xnV0Df0xhN4LN98XqA5jaiOw==}
 
   '@graphql-codegen/add@3.2.3':
     resolution: {integrity: sha512-sQOnWpMko4JLeykwyjFTxnhqjd/3NOG2OyMuvK76Wnnwh8DRrNf2VEs2kmSvLl7MndMlOj7Kh5U154dVcvhmKQ==}
@@ -2781,14 +2790,26 @@ packages:
       react: ^16.8.0 || 17.x
       react-dom: ^16.8.0 || 17.x
 
+  '@react-google-maps/api@2.20.6':
+    resolution: {integrity: sha512-frxkSHWbd36ayyxrEVopSCDSgJUT1tVKXvQld2IyzU3UnDuqqNA3AZE4/fCdqQb2/zBQx3nrWnZB1wBXDcrjcw==}
+    peerDependencies:
+      react: ^16.8 || ^17 || ^18 || ^19
+      react-dom: ^16.8 || ^17 || ^18 || ^19
+
   '@react-google-maps/api@2.7.0':
     resolution: {integrity: sha512-Fb/l7aR69ObYvzhpt1d1931454ylRkTPKF1C8GfLvXtg19wc36zTev2Afbahd+qAdyKuQyDdf5/SQyMjYBHI/A==}
     peerDependencies:
       react: ^16.6.3 || ^17.0.0
       react-dom: ^16.6.3 || ^17.0.0
 
+  '@react-google-maps/infobox@2.20.0':
+    resolution: {integrity: sha512-03PJHjohhaVLkX6+NHhlr8CIlvUxWaXhryqDjyaZ8iIqqix/nV8GFdz9O3m5OsjtxtNho09F/15j14yV0nuyLQ==}
+
   '@react-google-maps/infobox@2.6.0':
     resolution: {integrity: sha512-2dXVZsuZ2PjelVg+slpUSYPnvoSIySwf4P/wScGijjqu6bpvhyX9AivitsF7zHfbwnZ0gAPX1Q8xtQhKgawkEg==}
+
+  '@react-google-maps/marker-clusterer@2.20.0':
+    resolution: {integrity: sha512-tieX9Va5w1yP88vMgfH1pHTacDQ9TgDTjox3tLlisKDXRQWdjw+QeVVghhf5XqqIxXHgPdcGwBvKY6UP+SIvLw==}
 
   '@react-google-maps/marker-clusterer@2.6.0':
     resolution: {integrity: sha512-EjeoCM+U/6W9qoGWqurcDbCubqTEDTFET7Jd3XcLHqTLvFAE473x2YbQg98mJXKNgPKcPTNEcTiYYGiIz9tEjA==}
@@ -3179,6 +3200,9 @@ packages:
 
   '@types/google.maps@3.46.1':
     resolution: {integrity: sha512-GAa5ZWYgXG50yLXybb7A824esGm/L0LKHS7qD0qkP0IA/Qp5r922P9tmYcbCkGEf3Zgf7Ukbp7l08/IGIJuQwQ==}
+
+  '@types/google.maps@3.58.1':
+    resolution: {integrity: sha512-X9QTSvGJ0nCfMzYOnaVs/k6/4L+7F5uCS+4iUmkLEls6J9S/Phv+m/i3mDeyc49ZBgwab3EFO1HEoBY7k98EGQ==}
 
   '@types/graceful-fs@4.1.9':
     resolution: {integrity: sha512-olP3sd1qOEe5dXTSaFvQG+02VdRXcdytWLAZsAq1PecU8uqQAhkrnbli7DagjtXKW/Bl7YJbUsa8MPcuc8LHEQ==}
@@ -6050,6 +6074,9 @@ packages:
   kdbush@3.0.0:
     resolution: {integrity: sha512-hRkd6/XW4HTsA9vjVpY9tuXJYLSlelnkTmVFu4M9/7MIYQtFcHpbugAU7UbOfjOiVSVYl2fqgBuJ32JUmRo5Ew==}
 
+  kdbush@4.0.2:
+    resolution: {integrity: sha512-WbCVYJ27Sz8zi9Q7Q0xHC+05iwkm3Znipc2XTlrnJbsHMYktW4hPhXUE8Ys1engBrvffoSCqbil1JQAa7clRpA==}
+
   keyv@3.1.0:
     resolution: {integrity: sha512-9ykJ/46SN/9KPM/sichzQ7OvXyGDYKGTaDlKMGCAlg2UK8KRy4jb0d8sFc+0Tt0YYnThq8X2RZgCg74RPxgcVA==}
 
@@ -7993,6 +8020,9 @@ packages:
 
   supercluster@7.1.5:
     resolution: {integrity: sha512-EulshI3pGUM66o6ZdH3ReiFcvHpM3vAigyK+vcxdjpJyEbIIrtbmBdY23mGgnI24uXiGFvrGq9Gkum/8U7vJWg==}
+
+  supercluster@8.0.1:
+    resolution: {integrity: sha512-IiOea5kJ9iqzD2t7QJq/cREyLHTtSmUT6gQsweojg9WH2sYJqZK9SswTu6jrscO6D1G5v5vYZ9ru/eq85lXeZQ==}
 
   supertest@6.3.4:
     resolution: {integrity: sha512-erY3HFDG0dPnhw4U+udPfrzXa4xhSG+n4rxfRuZWCUvjFWwKl+OxWf/7zk50s84/fAAs7vf5QAb9uRa0cCykxw==}
@@ -10749,12 +10779,19 @@ snapshots:
     dependencies:
       fast-deep-equal: 3.1.3
 
+  '@googlemaps/js-api-loader@1.16.8': {}
+
   '@googlemaps/markerclusterer@1.0.12':
     dependencies:
       '@turf/clusters-dbscan': 6.5.0
       '@turf/clusters-kmeans': 6.5.0
       fast-deep-equal: 3.1.3
       supercluster: 7.1.5
+
+  '@googlemaps/markerclusterer@2.5.3':
+    dependencies:
+      fast-deep-equal: 3.1.3
+      supercluster: 8.0.1
 
   '@graphql-codegen/add@3.2.3(graphql@16.3.0)':
     dependencies:
@@ -12002,6 +12039,17 @@ snapshots:
       tiny-warning: 1.0.3
       tslib: 2.8.1
 
+  '@react-google-maps/api@2.20.6(react-dom@17.0.2(react@17.0.2))(react@17.0.2)':
+    dependencies:
+      '@googlemaps/js-api-loader': 1.16.8
+      '@googlemaps/markerclusterer': 2.5.3
+      '@react-google-maps/infobox': 2.20.0
+      '@react-google-maps/marker-clusterer': 2.20.0
+      '@types/google.maps': 3.58.1
+      invariant: 2.2.4
+      react: 17.0.2
+      react-dom: 17.0.2(react@17.0.2)
+
   '@react-google-maps/api@2.7.0(react-dom@17.0.2(react@17.0.2))(react@17.0.2)':
     dependencies:
       '@googlemaps/js-api-loader': 1.12.8
@@ -12013,7 +12061,11 @@ snapshots:
       react: 17.0.2
       react-dom: 17.0.2(react@17.0.2)
 
+  '@react-google-maps/infobox@2.20.0': {}
+
   '@react-google-maps/infobox@2.6.0': {}
+
+  '@react-google-maps/marker-clusterer@2.20.0': {}
 
   '@react-google-maps/marker-clusterer@2.6.0': {}
 
@@ -12612,6 +12664,8 @@ snapshots:
       '@types/node': 18.19.130
 
   '@types/google.maps@3.46.1': {}
+
+  '@types/google.maps@3.58.1': {}
 
   '@types/graceful-fs@4.1.9':
     dependencies:
@@ -14558,8 +14612,8 @@ snapshots:
       '@typescript-eslint/parser': 5.62.0(eslint@8.11.0)(typescript@4.6.2)
       eslint: 8.11.0
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-typescript: 2.7.1(eslint-plugin-import@2.32.0(eslint@8.11.0))(eslint@8.11.0)
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.11.0)(typescript@4.6.2))(eslint-import-resolver-typescript@2.7.1(eslint-plugin-import@2.32.0(eslint@8.11.0))(eslint@8.11.0))(eslint@8.11.0)
+      eslint-import-resolver-typescript: 2.7.1(eslint-plugin-import@2.32.0)(eslint@8.11.0)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.11.0)(typescript@4.6.2))(eslint-import-resolver-typescript@2.7.1)(eslint@8.11.0)
       eslint-plugin-jsx-a11y: 6.10.2(eslint@8.11.0)
       eslint-plugin-react: 7.37.5(eslint@8.11.0)
       eslint-plugin-react-hooks: 4.6.2(eslint@8.11.0)
@@ -14586,11 +14640,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-import-resolver-typescript@2.7.1(eslint-plugin-import@2.32.0(eslint@8.11.0))(eslint@8.11.0):
+  eslint-import-resolver-typescript@2.7.1(eslint-plugin-import@2.32.0)(eslint@8.11.0):
     dependencies:
       debug: 4.4.3
       eslint: 8.11.0
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.11.0)(typescript@4.6.2))(eslint-import-resolver-typescript@2.7.1(eslint-plugin-import@2.32.0(eslint@8.11.0))(eslint@8.11.0))(eslint@8.11.0)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.11.0)(typescript@4.6.2))(eslint-import-resolver-typescript@2.7.1)(eslint@8.11.0)
       glob: 7.2.3
       is-glob: 4.0.3
       resolve: 1.22.11
@@ -14605,11 +14659,11 @@ snapshots:
       '@typescript-eslint/parser': 5.62.0(eslint@8.11.0)(typescript@4.6.2)
       eslint: 8.11.0
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-typescript: 2.7.1(eslint-plugin-import@2.32.0(eslint@8.11.0))(eslint@8.11.0)
+      eslint-import-resolver-typescript: 2.7.1(eslint-plugin-import@2.32.0)(eslint@8.11.0)
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-import@2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.11.0)(typescript@4.6.2))(eslint-import-resolver-typescript@2.7.1(eslint-plugin-import@2.32.0(eslint@8.11.0))(eslint@8.11.0))(eslint@8.11.0):
+  eslint-plugin-import@2.32.0(@typescript-eslint/parser@5.62.0(eslint@8.11.0)(typescript@4.6.2))(eslint-import-resolver-typescript@2.7.1)(eslint@8.11.0):
     dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.9
@@ -16375,6 +16429,8 @@ snapshots:
   kareem@2.5.1: {}
 
   kdbush@3.0.0: {}
+
+  kdbush@4.0.2: {}
 
   keyv@3.1.0:
     dependencies:
@@ -18536,6 +18592,10 @@ snapshots:
   supercluster@7.1.5:
     dependencies:
       kdbush: 3.0.0
+
+  supercluster@8.0.1:
+    dependencies:
+      kdbush: 4.0.2
 
   supertest@6.3.4:
     dependencies:

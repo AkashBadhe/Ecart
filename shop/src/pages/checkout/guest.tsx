@@ -9,8 +9,9 @@ import { getLayout } from '@/components/layouts/layout';
 import { AddressType } from '@/framework/utils/constants';
 import Seo from '@/components/seo/seo';
 import { useAtom } from 'jotai';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import GuestName from '@/components/checkout/guest-name';
+import Checkbox from '@/components/ui/forms/checkbox/checkbox';
 
 export { getStaticProps } from '@/framework/general.ssr';
 
@@ -32,10 +33,21 @@ export default function GuestCheckoutPage() {
   // const { me } = useUser();
   const { t } = useTranslation();
   const [, resetCheckout] = useAtom(clearCheckoutAtom);
-  const [billingAddress] = useAtom(billingAddressAtom);
+  const [billingAddress, setBillingAddress] = useAtom(billingAddressAtom);
   const [shippingAddress] = useAtom(shippingAddressAtom);
+  const [billingSameAsShipping, setBillingSameAsShipping] = useState(
+    () => !billingAddress
+  );
+
+  useEffect(() => {
+    if (billingSameAsShipping && shippingAddress) {
+      setBillingAddress(shippingAddress as any);
+    }
+  }, [billingSameAsShipping, shippingAddress, setBillingAddress]);
+
   useEffect(() => {
     resetCheckout();
+    setBillingSameAsShipping(true);
   }, [resetCheckout]);
 
   return (
@@ -56,20 +68,32 @@ export default function GuestCheckoutPage() {
             />
             <GuestAddressGrid
               className="bg-light p-5 shadow-700 md:p-8"
-              label={t('text-billing-address')}
-              count={3}
-              addresses={billingAddress ? [billingAddress] : []}
-              atom={billingAddressAtom}
-              type={AddressType.Billing}
-            />
-            <GuestAddressGrid
-              className="bg-light p-5 shadow-700 md:p-8"
               label={t('text-shipping-address')}
-              count={4}
+              count={3}
               addresses={shippingAddress ? [shippingAddress] : []}
               atom={shippingAddressAtom}
               type={AddressType.Shipping}
             />
+            <div className="rounded bg-light p-5 shadow-700 md:p-8">
+              <Checkbox
+                name="billingSameAsShipping"
+                checked={billingSameAsShipping}
+                onChange={(event) =>
+                  setBillingSameAsShipping(event.target.checked)
+                }
+                label="Billing address same as shipping address"
+              />
+            </div>
+            {!billingSameAsShipping && (
+              <GuestAddressGrid
+                className="bg-light p-5 shadow-700 md:p-8"
+                label={t('text-billing-address')}
+                count={4}
+                addresses={billingAddress ? [billingAddress] : []}
+                atom={billingAddressAtom}
+                type={AddressType.Billing}
+              />
+            )}
             <ScheduleGrid
               className="bg-light p-5 shadow-700 md:p-8"
               label={t('text-delivery-schedule')}

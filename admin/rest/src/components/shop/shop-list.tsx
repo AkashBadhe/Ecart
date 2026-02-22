@@ -97,7 +97,7 @@ const ShopList = ({
       dataIndex: 'owner',
       key: 'owner',
       align: 'center',
-      render: (owner: any) => owner.name,
+      render: (owner: any) => owner?.name ?? '-',
     },
     {
       title: (

@@ -18,6 +18,13 @@ Axios.interceptors.request.use((config) => {
     ...config.headers,
     Authorization: `Bearer ${token ? token : ''}`,
   };
+
+  // Attach tenant slug header if running in tenant mode.
+  // The slug is resolved once by TenantProvider and stored on window.
+  if (typeof window !== 'undefined' && (window as any).__TENANT_SLUG__) {
+    config.headers['x-tenant-slug'] = (window as any).__TENANT_SLUG__;
+  }
+
   return config;
 });
 
